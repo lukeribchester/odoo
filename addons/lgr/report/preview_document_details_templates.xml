@@ -17,11 +17,19 @@
                 </tr>
                 <tr>
                     <td class="o_lgr_document_detail_label">Invoice Date</td>
-                    <td class="o_lgr_document_detail_value">07/08/2020</td>
+                    <td class="o_lgr_document_detail_value">
+                        <t t-out="datetime.date(2020, 7, 8)"
+                           t-options='{"widget": "date", "format": "d MMMM yyyy"}'>8 July 2020
+                        </t>
+                    </td>
                 </tr>
                 <tr>
                     <td class="o_lgr_document_detail_label">Due Date</td>
-                    <td class="o_lgr_document_detail_value">08/07/2020</td>
+                    <td class="o_lgr_document_detail_value">
+                        <t t-out="datetime.date(2020, 8, 7)"
+                           t-options='{"widget": "date", "format": "d MMMM yyyy"}'>7 August 2020
+                        </t>
+                    </td>
                 </tr>
             </tbody>
         </table>

@@ -77,6 +77,10 @@ labels and translations may wrap. The generic layout preview displays its dummy 
 date in the same single-column table. Active invoice and quotation previews use their Accounting and Sales helpers and
 real record values.
 
+All seven Accounting and Sales detail dates use the fixed `d MMMM yyyy` presentation. Month names follow the report
+partner's language, so the same date renders as `1 January 2026` in English and `1 januari 2026` in Dutch. Date and
+Datetime values continue to use Odoo's date widget, preserving its language and timezone handling.
+
 Accounting number and date labels are selected in this order, without changing the fields that supply their values:
 
 | Condition                                   | Number label       | Date label       |
@@ -159,7 +163,8 @@ A future custom invoice template can call, inherit, or replace `lgr.account_move
 `lgr_document_details` fragment, without changing the external layout. Report-specific templates should continue to own
 field selection, conditions, translatable source wording, and formatting; the shared layout owns placement and styling.
 
-The helpers render in Odoo's existing partner-language context, so dates and field widgets retain localized formatting.
+The helpers render in Odoo's existing partner-language context, so month names, dates, and field widgets retain
+localized formatting within LGR's fixed day–full-month–year date order.
 Their literal labels belong to LGR's own QWeb view records, however, and therefore need an LGR `i18n/<language>.po`
 catalog before they appear in a non-English language. Translations from the dependency views are not inherited merely
 because a source label is identical. No non-English catalog is bundled until the required target languages and wording
@@ -218,7 +223,7 @@ pages in a report.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record and company selection are retained across this `1.3.8` update.
+record and company selection are retained across this `1.3.9` update.
 
 ## Validation checklist
 
@@ -238,7 +243,9 @@ record and company selection are retained across this `1.3.8` update.
 - Confirm Source appears only when populated on outgoing customer invoices, credit notes, and sales receipts, and
   remains hidden on vendor bills, vendor credits, and purchase receipts. Confirm Sales and preview terminology is
   unchanged.
-- Test missing and long detail values, partner-language date/field formatting and any installed LGR label translations,
+- Confirm every Accounting and Sales detail date uses `d MMMM yyyy`, including localized month names and Sales Datetime
+  values around midnight and year boundaries. Test missing and long detail values, partner-language field formatting and
+  any installed LGR label translations,
   child invoice addresses, oversized logos, forced VAT, all six table styles, multiple companies, long addresses and
   wrapped detail values, and both A4 and Letter paper formats. Confirm company and recipient VAT render as
   `VAT <number>` without a colon, and test every missing email/VAT combination.
@@ -250,7 +257,7 @@ record and company selection are retained across this `1.3.8` update.
 - Test a mixed-company batch containing LGR and built-in layouts and confirm the whole PDF receives the 110 mm
   reservation. Then test a batch using only built-in layouts and confirm its original margins, title placement, and
   `#informations` block remain unchanged.
-- Confirm the rebuilt archive contains exactly the nine allowlisted regular files, reports version `1.3.8`, and contains
+- Confirm the rebuilt archive contains exactly the nine allowlisted regular files, reports version `1.3.9`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.3.8` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.3.9` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection persists before updating production.

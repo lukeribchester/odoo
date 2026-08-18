@@ -64,7 +64,9 @@
                             </strong>
                         </td>
                         <td class="o_lgr_document_detail_value">
-                            <span t-field="o.invoice_date">2026-08-18</span>
+                            <span t-field="o.invoice_date"
+                                  t-options='{"widget": "date", "format": "d MMMM yyyy"}'>18 August 2026
+                            </span>
                         </td>
                     </tr>
 
@@ -73,7 +75,9 @@
                             <strong>Due Date</strong>
                         </td>
                         <td class="o_lgr_document_detail_value">
-                            <span t-field="o.invoice_date_due">2026-09-17</span>
+                            <span t-field="o.invoice_date_due"
+                                  t-options='{"widget": "date", "format": "d MMMM yyyy"}'>17 September 2026
+                            </span>
                         </td>
                     </tr>
 
@@ -82,7 +86,9 @@
                             <strong>Delivery Date</strong>
                         </td>
                         <td class="o_lgr_document_detail_value">
-                            <span t-field="o.delivery_date">2026-08-18</span>
+                            <span t-field="o.delivery_date"
+                                  t-options='{"widget": "date", "format": "d MMMM yyyy"}'>18 August 2026
+                            </span>
                         </td>
                     </tr>
 
@@ -91,7 +97,9 @@
                             <strong>Taxable Supply</strong>
                         </td>
                         <td class="o_lgr_document_detail_value">
-                            <span t-field="o.taxable_supply_date">2026-08-18</span>
+                            <span t-field="o.taxable_supply_date"
+                                  t-options='{"widget": "date", "format": "d MMMM yyyy"}'>18 August 2026
+                            </span>
                         </td>
                     </tr>
 
