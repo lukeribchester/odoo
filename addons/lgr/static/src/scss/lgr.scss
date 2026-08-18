@@ -1,0 +1,153 @@
+// LGR's header and footer use tables deliberately: wkhtmltopdf does not reliably
+// support the modern layout primitives used by browser-only views.
+.o_lgr_layout {
+  font-size: .875rem;
+  line-height: 1.25;
+
+  .o_lgr_structural_table {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    background: transparent;
+
+    th,
+    td {
+      box-sizing: border-box;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+  }
+
+  .o_lgr_header_content {
+    width: 75%;
+    padding: 0;
+    vertical-align: top;
+  }
+
+  .o_lgr_header_content_full {
+    width: 100%;
+  }
+
+  .o_lgr_header_table .o_lgr_logo_cell {
+    width: 25%;
+    padding-left: 6mm;
+    text-align: right;
+    vertical-align: top;
+  }
+
+  .o_lgr_company_logo {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 22mm;
+  }
+
+  .o_lgr_document_title {
+    margin: 0 0 4mm;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.15;
+    word-wrap: break-word;
+  }
+
+  .o_lgr_details_table {
+    .o_lgr_company_column,
+    .o_lgr_recipient_column {
+      width: 50%;
+      vertical-align: top;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    .o_lgr_company_column {
+      padding-right: 4mm;
+    }
+
+    .o_lgr_company_column_full {
+      width: 100%;
+      padding-right: 0;
+    }
+
+    .o_lgr_recipient_column {
+      padding-left: 4mm;
+    }
+  }
+
+  .o_lgr_entity_heading {
+    margin: 0 0 1mm;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+
+  .o_lgr_detail_line,
+  address,
+  p,
+  ul {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  address {
+    font-style: normal;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+
+  .o_lgr_detail_line {
+    line-height: 1.25;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+}
+
+.o_lgr_header {
+  .o_lgr_header_table,
+  .o_lgr_details_table {
+    width: 100%;
+  }
+}
+
+.o_lgr_footer {
+  font-size: .8rem;
+  line-height: 1.2;
+
+  .o_lgr_footer_table {
+    width: 100%;
+  }
+
+  .o_lgr_footer_table .o_lgr_footer_text {
+    width: 75%;
+    padding-right: 5mm;
+    text-align: left;
+    vertical-align: bottom;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+
+  .o_lgr_footer_table .o_lgr_footer_pager {
+    width: 25%;
+    text-align: right;
+    vertical-align: bottom;
+    white-space: nowrap;
+  }
+}
+
+.o_lgr_information_block {
+  margin: 0 0 4mm;
+  line-height: 1.25;
+  white-space: normal;
+  word-wrap: break-word;
+
+  p,
+  ul {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Register the QWeb template in the document-layout selector. -->
+    <record id="report_layout_lgr" model="report.layout">
+        <field name="name">LGR</field>
+        <field name="sequence">90</field>
+        <field name="view_id" ref="lgr.external_layout_lgr"/>
+    </record>
+</odoo>
