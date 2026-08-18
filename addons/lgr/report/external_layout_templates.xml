@@ -27,7 +27,7 @@
                 is plain text with a trailing record identifier removed.
             -->
             <t t-set="lgr_visible_document_title"
-               t-value="layout_document_title and Markup(layout_document_title).striptags() or False"/>
+               t-value="layout_document_title and (layout_document_title if isinstance(layout_document_title, str) else layout_document_title.striptags()) or False"/>
             <t t-if="is_preview and lgr_visible_document_title"
                t-set="lgr_visible_document_title"
                t-value="lgr_visible_document_title.rsplit(None, 1)[0]"/>
