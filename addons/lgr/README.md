@@ -11,19 +11,20 @@ contains:
 - An optional context-aware document title. Odoo's translated document-type wording is preserved while a trailing
   document identifier and separator are removed. Receipts use the title `Receipt`; no empty title space is reserved when
   no title remains.
-- An optional single-column details table 4 mm beneath the title. Accounting, Sales, and the generic layout preview
+- An optional single-column details table 6 mm beneath the title. Accounting, Sales, and the generic layout preview
   provide built-in detail fragments. If a fragment exists without a title, it starts at the top left without an empty
   title row.
-- Structured company details in the left information column: the legal entity name, postal address, a one-line gap,
+- Structured company details in the left information column: the legal entity name, postal address, a half-line gap,
   unprefixed email address, and `VAT <number>`. If email is missing, the gap precedes VAT instead. Missing optional
   values are omitted.
 - Recipient details in the adjacent information column: its mapped heading, legal entity name, postal address, a
-  one-line gap, and `VAT <number>` when available.
+  half-line gap, and `VAT <number>` when available.
 - The company logo at the top right. The information area expands when no logo is configured.
 
 The title, details, company and recipient information, and logo repeat together on every generated PDF page. In the
-layout preview their order is title, details, then the address columns, with the logo remaining at the top right. The
-complete header is outside the report article and therefore reduces the body area available on each page.
+layout preview their order is title, details, then the address columns, with 6 mm separating each masthead section and
+the logo remaining at the top right. The complete header is outside the report article and therefore reduces the body
+area available on each page.
 
 For Accounting and Sales PDFs whose batch contains at least one document using LGR, the module requests a 110 mm top
 margin and 110 mm header spacing through Odoo's supported report-rendering values. This reservation applies to the whole
@@ -97,7 +98,7 @@ a mapped context do not display a recipient heading:
 | Other reports                             | Existing `address` fragment         | No heading |
 
 For record-based recipients, the selected invoice/postal address is displayed with the commercial entity's name, a
-one-line gap, and `VAT <number>` when available. Pre-rendered fallback `address` fragments remain caller-controlled and
+half-line gap, and `VAT <number>` when available. Pre-rendered fallback `address` fragments remain caller-controlled and
 are not rewritten. Sales reports keep a separate shipping-only information block when the shipping and invoice addresses
 differ. Accounting's existing shipping information block is preserved in the report body.
 
@@ -135,7 +136,7 @@ are agreed.
 
 Company data is intentionally read from structured `res.company` and `res.partner` fields rather than the rich-text
 **Company Details** editor. The header does not display the structured company phone or registration number. Company
-email is displayed without a prefix. After the postal address, a one-line gap precedes the email, followed immediately
+email is displayed without a prefix. After the postal address, a half-line gap precedes the email, followed immediately
 by `VAT <number>`. If email is unavailable, the gap precedes VAT instead. VAT is resolved as
 `forced_vat or company.vat`.
 
@@ -176,7 +177,7 @@ pages in a report.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record and company selection are retained across this `1.3.4` update.
+record and company selection are retained across this `1.3.5` update.
 
 ## Validation checklist
 
@@ -192,11 +193,13 @@ record and company selection are retained across this `1.3.4` update.
   wrapped detail values, and both A4 and Letter paper formats. Confirm company and recipient VAT render as
   `VAT <number>`
   without a colon, and test every missing email/VAT combination.
+- Confirm the title/details and details/addresses gaps are both 6 mm, and the address-to-email/VAT gap is half the
+  configured detail-line height.
 - Verify real single-page and multipage PDFs: the complete header and footer repeat, `Page X of Y` is exact, and invoice
   splitting still works. Inspect header/body clearance and record any overflow from unusually tall content as the known
   fixed-margin limitation.
 - Test a mixed-company batch containing LGR and built-in layouts and confirm the whole PDF receives the 110 mm
   reservation. Then test a batch using only built-in layouts and confirm its original margins, title placement, and
   `#informations` block remain unchanged.
-- Import version `1.3.4` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.3.5` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection persists before updating production.
