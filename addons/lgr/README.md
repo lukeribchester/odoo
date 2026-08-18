@@ -53,7 +53,7 @@ It uses Odoo's existing field conditions and formatting and can display:
 | 3     | Due date                         |
 | 4     | Delivery date                    |
 | 5     | Taxable-supply date              |
-| 6     | Source document                  |
+| 6     | Source document (outgoing only)  |
 | 7     | Customer code                    |
 | 8     | Reference                        |
 | 9     | Incoterm and location            |
@@ -76,6 +76,10 @@ label cell provides the minimum gutter. This split is optimized for labels of up
 labels and translations may wrap. The generic layout preview displays its dummy invoice number, invoice date, and due
 date in the same single-column table. Active invoice and quotation previews use their Accounting and Sales helpers and
 real record values.
+
+The optional Source row is limited to outgoing customer invoices, credit notes, and sales receipts. Incoming vendor
+documents retain their stored Odoo source data but do not display it in LGR. Standard and pro-forma vendor bills use the
+compact number label `Bill Number`; self-billing, vendor-credit-note, and purchase-receipt labels remain distinct.
 
 Odoo's original `#informations` nodes remain in their report templates so other inherited views can still target them.
 When LGR receives a details fragment, an LGR-scoped article class hides the original block to prevent duplication. Other
@@ -178,7 +182,7 @@ pages in a report.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record and company selection are retained across this `1.3.6` update.
+record and company selection are retained across this `1.3.7` update.
 
 ## Validation checklist
 
@@ -189,6 +193,9 @@ record and company selection are retained across this `1.3.6` update.
 - Confirm each visible title retains its translated document-type wording without the record identifier or trailing `#`,
   while the document number appears in the single-column details table and the complete hidden title remains available
   for invoice splitting.
+- Confirm Source appears only when populated on outgoing customer invoices, credit notes, and sales receipts. Verify it
+  remains hidden on vendor bills, vendor credits, and purchase receipts, and that standard and pro-forma vendor bills
+  use the label `Bill Number`.
 - Test missing and long detail values, partner-language date/field formatting and any installed LGR label translations,
   child invoice addresses, oversized logos, forced VAT, all six table styles, multiple companies, long addresses and
   wrapped detail values, and both A4 and Letter paper formats. Confirm company and recipient VAT render as
@@ -201,5 +208,5 @@ record and company selection are retained across this `1.3.6` update.
 - Test a mixed-company batch containing LGR and built-in layouts and confirm the whole PDF receives the 110 mm
   reservation. Then test a batch using only built-in layouts and confirm its original margins, title placement, and
   `#informations` block remain unchanged.
-- Import version `1.3.6` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.3.7` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection persists before updating production.
