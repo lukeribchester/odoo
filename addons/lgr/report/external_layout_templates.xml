@@ -84,7 +84,6 @@
                                                      t-field="company.partner_id"
                                                      t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
                                                 <div t-if="company.email" class="o_lgr_detail_line">
-                                                    <span>Email:</span>
                                                     <span t-field="company.email">info@example.com</span>
                                                 </div>
                                                 <div t-if="lgr_company_vat and lgr_company_vat != '/'"

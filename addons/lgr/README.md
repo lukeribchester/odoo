@@ -10,7 +10,7 @@ The repeating document header contains:
 - An optional context-aware document title at the top left. Odoo's translated document-type wording is preserved while a
   trailing document identifier and separator are removed. Receipts use the title `Receipt`; when no title remains, no
   empty title space is reserved.
-- Structured company details in the left information column: the legal entity name, postal address, email address, a
+- Structured company details in the left information column: the legal entity name, postal address, raw email address, a
   one-line gap, and the VAT number. Missing optional values are omitted.
 - Recipient details in the adjacent information column: its heading, legal entity name, postal address, and raw VAT
   number when available.
@@ -56,8 +56,9 @@ Future nested report templates may additionally set:
 - `lgr_recipient`: a `res.partner` record that overrides the built-in recipient mapping.
 
 Company data is intentionally read from structured `res.company` and `res.partner` fields rather than the rich-text
-**Company Details** editor. The header does not display the structured company phone or registration number. Company VAT
-is resolved as `forced_vat or company.vat` and displayed without a prefix after the email and one-line gap.
+**Company Details** editor. The header does not display the structured company phone or registration number. Company
+email and VAT are displayed without prefixes; VAT is resolved as `forced_vat or company.vat` and follows the email and
+one-line gap.
 
 ## SaaS compatibility and dependencies
 
