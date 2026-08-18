@@ -5,7 +5,8 @@ modifying any of Odoo's built-in layouts. Installation does not automatically se
 
 ## Layout behavior
 
-The first page starts with a document masthead in the normal report flow. It contains:
+The repeating document header starts with a context-aware masthead above the company and recipient addresses. It
+contains:
 
 - An optional context-aware document title. Odoo's translated document-type wording is preserved while a trailing
   document identifier and separator are removed. Receipts use the title `Receipt`; no empty title space is reserved when
@@ -13,17 +14,20 @@ The first page starts with a document masthead in the normal report flow. It con
 - An optional context-aware details grid directly beneath the title. Accounting, Sales, and the generic layout preview
   provide built-in detail fragments. If a fragment exists without a title, it starts at the top left without an empty
   title row.
-
-Because the masthead is part of the report article, its title and details appear only once and participate in normal
-page flow. It is kept together where possible and does not require a custom paper format.
-
-The repeating document header contains:
-
 - Structured company details in the left information column: the legal entity name, postal address, raw email address, a
   one-line gap, and the raw VAT number. Missing optional values are omitted.
 - Recipient details in the adjacent information column: its mapped heading, legal entity name, postal address, and raw
   VAT number when available.
 - The company logo at the top right. The information area expands when no logo is configured.
+
+The title, details, company and recipient information, and logo repeat together on every generated PDF page. In the
+layout preview their order is title, details, then the address columns, with the logo remaining at the top right. The
+complete header is outside the report article and therefore reduces the body area available on each page.
+
+For Accounting and Sales PDFs whose batch contains at least one document using LGR, the module requests a 90 mm top
+margin and 90 mm header spacing through Odoo's supported report-rendering values. This reservation applies to the whole
+PDF batch so mixed-company batches remain safe. A custom paper format is not required. Batches using only built-in
+layouts retain Odoo's existing margin and spacing values.
 
 The repeating footer displays `company.report_footer` on the left. Generated PDFs show `Page X of Y` on the right; the
 document-layout preview shows `Page 1 of 1`. Normal HTML reports omit the counter because Odoo cannot provide a reliable
@@ -31,7 +35,8 @@ total page count there.
 
 The layout preserves Odoo's report article metadata, document slot, complete hidden PDF title, address and information
 blocks, configured font and colors, and all six built-in table styles. Structural layout and document-details tables are
-excluded from document-table styling.
+excluded from document-table styling. The original complete title remains in Odoo's invisible article heading for PDF
+invoice splitting even though the cleaned visible title is rendered in the repeating header.
 
 ## Context-aware document details
 
@@ -83,7 +88,7 @@ a mapped context do not display a recipient heading:
 
 For record-based recipients, the selected invoice/postal address is displayed with the commercial entity's name and VAT
 number. Sales reports keep a separate shipping-only information block when the shipping and invoice addresses differ.
-Accounting's existing shipping information block is preserved and follows the first-page masthead.
+Accounting's existing shipping information block is preserved in the report body.
 
 ## QWeb caller interface
 
@@ -98,8 +103,8 @@ LGR continues to honor these standard Odoo caller values:
 Nested report templates may additionally set:
 
 - `lgr_recipient`: a `res.partner` record that overrides the built-in recipient mapping.
-- `lgr_document_details`: trusted body-form QWeb content rendered beneath the visible title. It should contain only the
-  details table; the LGR layout owns the masthead wrapper, spacing, and first-page behavior.
+- `lgr_document_details`: trusted body-form QWeb content rendered beneath the visible title in the repeating header. It
+  should contain only the details table; the LGR layout owns the masthead wrapper, spacing, and repetition behavior.
 
 The built-in reusable helper templates are:
 
@@ -136,6 +141,11 @@ This implementation intentionally does not adapt `account.payment` payment recei
 country modules that select a different primary invoice report. Those report families require their own small adapters
 and should be added only when the corresponding applications or localized reports are in scope.
 
+The 90 mm reservation is intentionally limited to the standard Accounting invoice and Sales order/pro-forma report
+containers supported by this module. It accommodates all mapped detail rows, company and recipient addresses of up to
+five lines, and detail values wrapping to at most two lines. Longer or heavily customized header content can exceed a
+fixed margin and must be tested separately. Reserving this space can increase the number of pages in a report.
+
 ## Package, install, and update on Odoo Online
 
 1. From the directory containing the addon, create an archive whose top-level directory is `lgr`:
@@ -153,22 +163,24 @@ and should be added only when the corresponding applications or localized report
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record and company selection are retained across this `1.3.0` update.
+record and company selection are retained across this `1.3.1` update.
 
 ## Validation checklist
 
-- Open the generic document-layout preview and active invoice and quotation previews. Confirm the title and details
-  appear once at the top of the article and the original `#informations` block is not duplicated.
+- Open the generic document-layout preview and active invoice and quotation previews. Confirm the order is title,
+  details, then company/recipient addresses, with the logo at the top right and no duplicated `#informations` block.
 - Preview and export invoices, credit notes, receipts, vendor documents, quotations, orders, Sales pro-formas, and the
   supported draft, cancelled, posted, self-billing, and separate invoice/shipping-address cases.
 - Confirm each visible title retains its translated document-type wording without the record identifier or trailing `#`,
   while the document number appears in the details grid and the complete hidden title remains available for invoice
   splitting.
 - Test missing and long detail values, partner-language date/field formatting and any installed LGR label translations,
-  child invoice addresses, oversized logos, forced VAT, all six table styles, multiple companies, and both supported
-  paper formats.
-- Verify real single-page and multipage PDFs: title and details appear on the first page only; company/recipient header
-  and footer repeat; `Page X of Y` is exact; and content does not overlap or split unexpectedly.
-- Temporarily select a built-in layout and confirm its original title and `#informations` block remain unchanged.
-- Import version `1.3.0` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+  child invoice addresses, oversized logos, forced VAT, all six table styles, multiple companies, five-line addresses,
+  two-line detail values, and both A4 and Letter paper formats.
+- Verify real single-page and multipage PDFs: the complete header repeats identically, the report body begins at least 4
+  mm below it, the footer repeats, `Page X of Y` is exact, and invoice splitting still works.
+- Test a mixed-company batch containing LGR and built-in layouts and confirm the whole PDF receives the safe 90 mm
+  reservation. Then test a batch using only built-in layouts and confirm its original margins, title placement, and
+  `#informations` block remain unchanged.
+- Import version `1.3.1` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection persists before updating production.

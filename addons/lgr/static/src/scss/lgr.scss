@@ -103,13 +103,16 @@
   }
 }
 
-.o_lgr_article {
+.o_lgr_header {
+  .o_lgr_header_table,
+  .o_lgr_details_table {
+    width: 100%;
+  }
+
   .o_lgr_document_masthead {
     margin: 0 0 4mm;
     font-size: .875rem;
     line-height: 1.25;
-    page-break-inside: avoid;
-    break-inside: avoid;
   }
 
   .o_lgr_document_title {
@@ -162,16 +165,11 @@
       padding-right: 0;
     }
   }
-
-  &.o_lgr_hide_standard_document_details #informations {
-    display: none;
-  }
 }
 
-.o_lgr_header {
-  .o_lgr_header_table,
-  .o_lgr_details_table {
-    width: 100%;
+.o_lgr_article {
+  &.o_lgr_hide_standard_document_details #informations {
+    display: none;
   }
 }
 

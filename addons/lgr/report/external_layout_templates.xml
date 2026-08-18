@@ -2,9 +2,9 @@
 <odoo>
     <!--
         Keep Odoo's shared article contract in an independent primary view.
-        LGR adds only its first-page masthead and layout-specific classes;
-        editor metadata, the hidden PDF title, and the caller's document slot
-        remain owned by web.external_layout_body.
+        LGR adds only layout-specific classes; editor metadata, the hidden PDF
+        title, and the caller's document slot remain owned by
+        web.external_layout_body.
     -->
     <template id="external_layout_body_lgr"
               name="LGR Report Body"
@@ -14,19 +14,6 @@
             <attribute name="t-attf-class"
                        add="o_lgr_article {{lgr_document_details and 'o_lgr_hide_standard_document_details' or ''}}"
                        separator=" "/>
-        </xpath>
-
-        <xpath expr="//h2[@t-if='not hide_title']" position="before">
-            <div t-if="lgr_visible_document_title or lgr_document_details"
-                 class="o_lgr_document_masthead">
-                <h2 t-if="lgr_visible_document_title"
-                    class="o_lgr_document_title"
-                    t-out="lgr_visible_document_title"/>
-                <div t-if="lgr_document_details"
-                     t-attf-class="o_lgr_document_details {{lgr_visible_document_title and 'o_lgr_document_details_with_title' or ''}}">
-                    <t t-out="lgr_document_details"/>
-                </div>
-            </div>
         </xpath>
     </template>
 
@@ -97,6 +84,21 @@
                     <tbody>
                         <tr>
                             <td t-attf-class="align-top o_lgr_header_content {{not company.logo and 'o_lgr_header_content_full' or ''}}">
+                                <div t-if="lgr_visible_document_title or lgr_document_details"
+                                     class="o_lgr_document_masthead">
+                                    <!--
+                                        This intentionally is not a heading element. Odoo's
+                                        untouched hidden h3 remains the document heading used
+                                        by PDF invoice splitting.
+                                    -->
+                                    <div t-if="lgr_visible_document_title"
+                                         class="o_lgr_document_title"
+                                         t-out="lgr_visible_document_title"/>
+                                    <div t-if="lgr_document_details"
+                                         t-attf-class="o_lgr_document_details {{lgr_visible_document_title and 'o_lgr_document_details_with_title' or ''}}">
+                                        <t t-out="lgr_document_details"/>
+                                    </div>
+                                </div>
                                 <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_details_table">
                                     <tbody>
                                         <tr>
