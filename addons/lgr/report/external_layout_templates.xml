@@ -2,9 +2,9 @@
 <odoo>
     <!--
         Keep Odoo's shared article contract in an independent primary view.
-        LGR adds only layout-specific classes; editor metadata, the hidden PDF
-        title, and the caller's document slot remain owned by
-        web.external_layout_body.
+        LGR adds layout-specific classes and inserts its trusted masthead
+        fragment after the hidden PDF title; editor metadata and the caller's
+        document slot remain owned by web.external_layout_body.
     -->
     <template id="external_layout_body_lgr"
               name="LGR Report Body"
@@ -15,12 +15,16 @@
                        add="o_lgr_article {{lgr_document_details and 'o_lgr_hide_standard_document_details' or ''}}"
                        separator=" "/>
         </xpath>
+        <xpath expr="//h3[@t-if=&quot;report_type == 'pdf'&quot;][contains(@class, 'opacity-0')]" position="after">
+            <t t-if="lgr_article_masthead" t-out="lgr_article_masthead"/>
+        </xpath>
     </template>
 
     <!--
         A primary inherited view creates an independent layout without changing
         Odoo's built-in Light layout. Focused replacements retain the shared
-        Odoo report-body contract while giving LGR its own header and footer.
+        Odoo report-body contract while giving LGR its own article masthead,
+        technical header, and footer.
     -->
     <template id="external_layout_lgr"
               name="LGR"
@@ -79,93 +83,99 @@
 
             <t t-set="lgr_company_vat" t-value="forced_vat or company.vat"/>
 
-            <div t-attf-class="header o_company_#{company.id}_layout o_lgr_layout o_lgr_header">
-                <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_header_table">
-                    <tbody>
-                        <tr>
-                            <td t-attf-class="align-top o_lgr_header_content {{not company.logo and 'o_lgr_header_content_full' or ''}}">
-                                <div t-if="lgr_visible_document_title or lgr_document_details"
-                                     class="o_lgr_document_masthead">
-                                    <!--
-                                        This intentionally is not a heading element. Odoo's
-                                        untouched hidden h3 remains the document heading used
-                                        by PDF invoice splitting.
-                                    -->
-                                    <div t-if="lgr_visible_document_title"
-                                         class="o_lgr_document_title"
-                                         t-out="lgr_visible_document_title"/>
-                                    <div t-if="lgr_document_details"
-                                         t-attf-class="o_lgr_document_details {{lgr_visible_document_title and 'o_lgr_document_details_with_title' or ''}}">
-                                        <t t-out="lgr_document_details"/>
+            <t t-set="lgr_article_masthead">
+                <div t-attf-class="o_company_#{company.id}_layout o_lgr_layout o_lgr_article_masthead">
+                    <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_masthead_table">
+                        <tbody>
+                            <tr>
+                                <td t-attf-class="align-top o_lgr_masthead_content {{not company.logo and 'o_lgr_masthead_content_full' or ''}}">
+                                    <div t-if="lgr_visible_document_title or lgr_document_details"
+                                         class="o_lgr_document_masthead">
+                                        <!--
+                                            This intentionally is not a heading element. Odoo's
+                                            untouched hidden h3 remains the document heading used
+                                            by PDF invoice splitting.
+                                        -->
+                                        <div t-if="lgr_visible_document_title"
+                                             class="o_lgr_document_title"
+                                             t-out="lgr_visible_document_title"/>
+                                        <div t-if="lgr_document_details"
+                                             t-attf-class="o_lgr_document_details {{lgr_visible_document_title and 'o_lgr_document_details_with_title' or ''}}">
+                                            <t t-out="lgr_document_details"/>
+                                        </div>
                                     </div>
-                                </div>
-                                <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_details_table">
-                                    <tbody>
-                                        <tr>
-                                            <td t-att-colspan="not (lgr_effective_recipient or address) and 2 or 1"
-                                                t-attf-class="align-top o_lgr_company_column {{not (lgr_effective_recipient or address) and 'o_lgr_company_column_full' or ''}}">
-                                                <div class="o_lgr_entity_heading">
-                                                    <span t-field="company.name">Company name</span>
-                                                </div>
-                                                <div class="o_lgr_company_address"
-                                                     t-field="company.partner_id"
-                                                     t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
-                                                <div t-if="company.email"
-                                                     class="o_lgr_detail_line o_lgr_post_address">
-                                                    <span t-field="company.email">info@example.com</span>
-                                                </div>
-                                                <div t-if="lgr_company_vat and lgr_company_vat != '/'"
-                                                     t-attf-class="o_lgr_detail_line {{not company.email and 'o_lgr_post_address' or ''}}">
-                                                    <span class="o_lgr_vat_prefix">VAT</span>
-                                                    <span t-out="lgr_company_vat">NL123456789B01</span>
-                                                </div>
-                                            </td>
-                                            <td t-if="lgr_effective_recipient or address"
-                                                class="align-top o_lgr_recipient_column">
-                                                <div t-if="lgr_effective_recipient_title" class="o_lgr_entity_heading">
-                                                    <t t-out="lgr_effective_recipient_title"/>
-                                                </div>
-                                                <t t-if="lgr_effective_recipient">
-                                                    <t t-set="lgr_recipient_legal_entity"
-                                                       t-value="lgr_effective_recipient.commercial_partner_id"/>
-                                                    <div class="o_lgr_recipient_name">
-                                                        <span t-field="lgr_recipient_legal_entity.name">Recipient
-                                                            company
-                                                        </span>
+                                    <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_details_table">
+                                        <tbody>
+                                            <tr>
+                                                <td t-att-colspan="not (lgr_effective_recipient or address) and 2 or 1"
+                                                    t-attf-class="align-top o_lgr_company_column {{not (lgr_effective_recipient or address) and 'o_lgr_company_column_full' or ''}}">
+                                                    <div class="o_lgr_entity_heading">
+                                                        <span t-field="company.name">Company name</span>
                                                     </div>
-                                                    <div class="o_lgr_recipient_address"
-                                                         t-out="lgr_effective_recipient"
+                                                    <div class="o_lgr_company_address"
+                                                         t-field="company.partner_id"
                                                          t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
-                                                    <div t-if="lgr_recipient_legal_entity.vat and lgr_recipient_legal_entity.vat != '/'"
+                                                    <div t-if="company.email"
                                                          class="o_lgr_detail_line o_lgr_post_address">
-                                                        <span class="o_lgr_vat_prefix">VAT</span>
-                                                        <span t-field="lgr_recipient_legal_entity.vat">NL987654321B01
-                                                        </span>
+                                                        <span t-field="company.email">info@example.com</span>
                                                     </div>
-                                                </t>
-                                                <div t-else="" class="o_lgr_recipient_details">
-                                                    <t t-out="address"/>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                            <td t-if="company.logo" class="align-top text-end o_lgr_logo_cell">
-                                <img class="o_company_logo_big o_lgr_company_logo"
-                                     t-att-src="image_data_uri(company.logo)"
-                                     alt="Logo"/>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                                                    <div t-if="lgr_company_vat and lgr_company_vat != '/'"
+                                                         t-attf-class="o_lgr_detail_line {{not company.email and 'o_lgr_post_address' or ''}}">
+                                                        <span class="o_lgr_vat_prefix">VAT</span>
+                                                        <span t-out="lgr_company_vat">NL123456789B01</span>
+                                                    </div>
+                                                </td>
+                                                <td t-if="lgr_effective_recipient or address"
+                                                    class="align-top o_lgr_recipient_column">
+                                                    <div t-if="lgr_effective_recipient_title"
+                                                         class="o_lgr_entity_heading">
+                                                        <t t-out="lgr_effective_recipient_title"/>
+                                                    </div>
+                                                    <t t-if="lgr_effective_recipient">
+                                                        <t t-set="lgr_recipient_legal_entity"
+                                                           t-value="lgr_effective_recipient.commercial_partner_id"/>
+                                                        <div class="o_lgr_recipient_name">
+                                                            <span t-field="lgr_recipient_legal_entity.name">Recipient
+                                                                company
+                                                            </span>
+                                                        </div>
+                                                        <div class="o_lgr_recipient_address"
+                                                             t-out="lgr_effective_recipient"
+                                                             t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                                                        <div t-if="lgr_recipient_legal_entity.vat and lgr_recipient_legal_entity.vat != '/'"
+                                                             class="o_lgr_detail_line o_lgr_post_address">
+                                                            <span class="o_lgr_vat_prefix">VAT</span>
+                                                            <span t-field="lgr_recipient_legal_entity.vat">
+                                                                NL987654321B01
+                                                            </span>
+                                                        </div>
+                                                    </t>
+                                                    <div t-else="" class="o_lgr_recipient_details">
+                                                        <t t-out="address"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td t-if="company.logo" class="align-top text-end o_lgr_logo_cell">
+                                    <img class="o_company_logo_big o_lgr_company_logo"
+                                         t-att-src="image_data_uri(company.logo)"
+                                         alt="Logo"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+            <div t-attf-class="header o_company_#{company.id}_layout o_lgr_technical_header"/>
         </xpath>
 
         <xpath expr="//t[@t-call='web.external_layout_body']" position="replace">
             <t t-call="lgr.external_layout_body_lgr"
                hide_recipient_address="True"
-               hide_title="True">
+               hide_title="True"
+               lgr_article_masthead="lgr_article_masthead">
                 <div t-if="lgr_is_sale_order and o.partner_shipping_id and o.partner_shipping_id != o.partner_invoice_id"
                      class="o_lgr_information_block">
                     <strong class="d-block">Ship to</strong>

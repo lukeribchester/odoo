@@ -22,17 +22,17 @@
     }
   }
 
-  .o_lgr_header_content {
+  .o_lgr_masthead_content {
     width: 75%;
     padding: 0;
     vertical-align: top;
   }
 
-  .o_lgr_header_content_full {
+  .o_lgr_masthead_content_full {
     width: 100%;
   }
 
-  .o_lgr_header_table .o_lgr_logo_cell {
+  .o_lgr_masthead_table .o_lgr_logo_cell {
     width: 25%;
     padding-left: 6mm;
     text-align: right;
@@ -109,8 +109,11 @@
   }
 }
 
-.o_lgr_header {
-  .o_lgr_header_table,
+.o_lgr_article_masthead {
+  padding-bottom: 24mm;
+  page-break-inside: avoid;
+
+  .o_lgr_masthead_table,
   .o_lgr_details_table {
     width: 100%;
   }
@@ -171,6 +174,19 @@
       padding-right: 0;
     }
   }
+}
+
+.o_body_html .o_lgr_article_masthead {
+  padding-top: 11mm;
+}
+
+.o_lgr_technical_header {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 
 .o_lgr_article {

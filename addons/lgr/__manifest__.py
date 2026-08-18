@@ -1,7 +1,7 @@
 {
     "name": "LGR",
     "summary": "Custom document layout for Accounting and Sales reports",
-    "version": "1.3.9",
+    "version": "1.4.0",
     "category": "Technical",
     "author": "Luke Gareth Ribchester",
     "license": "LGPL-3",

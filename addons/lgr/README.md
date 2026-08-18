@@ -5,8 +5,7 @@ modifying any of Odoo's built-in layouts. Installation does not automatically se
 
 ## Layout behavior
 
-The repeating document header starts with a context-aware masthead above the company and recipient addresses. It
-contains:
+The first page of each document starts with a context-aware masthead inside the report article. It contains:
 
 - An optional context-aware document title. Odoo's translated document-type wording is preserved while a trailing
   document identifier and separator are removed. Receipts use the title `Receipt`; no empty title space is reserved when
@@ -21,15 +20,18 @@ contains:
   half-line gap, and `VAT <number>` when available.
 - The company logo at the top right. The information area expands when no logo is configured.
 
-The title, details, company and recipient information, and logo repeat together on every generated PDF page. In the
-layout preview their order is title, details, then the address columns, with 6 mm separating each masthead section and
-the logo remaining at the top right. The complete header is outside the report article and therefore reduces the body
-area available on each page.
+The visible masthead appears only on the first page. Its order is title, details, then the address columns, with 6 mm
+between the title and details and between the details and addresses. The logo remains at the top right. A non-collapsing
+24 mm gap separates the completed masthead from the first report-owned content, including any shipping or secondary
+address block. Because the masthead participates in normal article flow, later pages do not reserve its height.
 
-For Accounting and Sales PDFs whose batch contains at least one document using LGR, the module requests a 110 mm top
-margin and 110 mm header spacing through Odoo's supported report-rendering values. This reservation applies to the whole
-PDF batch so mixed-company batches remain safe. A custom paper format is not required. Batches using only built-in
-layouts retain Odoo's existing margin and spacing values.
+Normal HTML output and the layout preview give the masthead an 11 mm top inset. For Accounting and Sales PDF batches in
+which every document uses LGR, the module requests an 11 mm top margin and zero header spacing through Odoo's supported
+report-rendering values. LGR retains a zero-height technical header so Odoo can keep headers, articles, and footers
+indexed per document, but that header has no visible content. Mixed LGR/built-in batches and batches containing only
+built-in layouts preserve their incoming paper-format margins and header spacing. As wkhtmltopdf applies these settings
+to the complete batch, an LGR page in a mixed batch may consequently have more top whitespace. A custom paper format is
+not required.
 
 The repeating footer displays `company.report_footer` on the left. Generated PDFs show `Page X of Y` on the right; the
 document-layout preview shows `Page 1 of 1`. Normal HTML reports omit the counter because Odoo cannot provide a reliable
@@ -38,7 +40,7 @@ total page count there.
 The layout preserves Odoo's report article metadata, document slot, complete hidden PDF title, address and information
 blocks, configured font and colors, and all six built-in table styles. Structural layout and document-details tables are
 excluded from document-table styling. The original complete title remains in Odoo's invisible article heading for PDF
-invoice splitting even though the cleaned visible title is rendered in the repeating header.
+invoice splitting even though the cleaned visible title is rendered in the first-page masthead.
 
 ## Context-aware document details
 
@@ -150,8 +152,8 @@ LGR continues to honor these standard Odoo caller values:
 Nested report templates may additionally set:
 
 - `lgr_recipient`: a `res.partner` record that overrides the built-in recipient mapping.
-- `lgr_document_details`: trusted body-form QWeb content rendered beneath the visible title in the repeating header. It
-  should contain only the details table; the LGR layout owns the masthead wrapper, spacing, and repetition behavior.
+- `lgr_document_details`: trusted body-form QWeb content rendered beneath the visible title in the first-page article
+  masthead. It should contain only the details table; the LGR layout owns the masthead wrapper, placement, and spacing.
 
 The built-in reusable helper templates are:
 
@@ -171,7 +173,7 @@ because a source label is identical. No non-English catalog is bundled until the
 are agreed.
 
 Company data is intentionally read from structured `res.company` and `res.partner` fields rather than the rich-text
-**Company Details** editor. The header does not display the structured company phone or registration number. Company
+**Company Details** editor. The masthead does not display the structured company phone or registration number. Company
 email is displayed without a prefix. After the postal address, a half-line gap precedes the email, followed immediately
 by `VAT <number>`. If email is unavailable, the gap precedes VAT instead. VAT is resolved as
 `forced_vat or company.vat`.
@@ -190,11 +192,11 @@ This implementation intentionally does not adapt `account.payment` payment recei
 country modules that select a different primary invoice report. Those report families require their own small adapters
 and should be added only when the corresponding applications or localized reports are in scope.
 
-The 110 mm reservation is intentionally limited to the standard Accounting invoice and Sales order/pro-forma report
-containers supported by this module. The single-column table can contain up to nine Accounting rows or seven Sales rows.
-With the current typography, unusually tall addresses or wrapped values can exceed the fixed reservation and overlap the
-body; this accepted limitation must be tested against real company data. Reserving this space can increase the number of
-pages in a report.
+The 11 mm PDF override is intentionally limited to all-LGR batches of the standard Accounting invoice and Sales
+order/pro-forma report containers supported by this module. The single-column table can contain up to nine Accounting
+rows or seven Sales rows. The complete masthead uses `page-break-inside: avoid`, but wkhtmltopdf treats this as a
+best-effort constraint: unusually tall addresses or heavily wrapped values may still force or split a page break. This
+accepted limitation must be tested against real company data.
 
 ## Package, install, and update on Odoo Online
 
@@ -223,12 +225,14 @@ pages in a report.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record and company selection are retained across this `1.3.9` update.
+record and company selection are retained across this `1.4.0` update.
 
 ## Validation checklist
 
-- Open the generic document-layout preview and active invoice and quotation previews. Confirm the order is title,
-  details, then company/recipient addresses, with the logo at the top right and no duplicated `#informations` block.
+- Open the generic document-layout preview and active invoice and quotation previews. Confirm the first-page order is
+  title, details, then company/recipient addresses, with the logo at the top right, an 11 mm top inset, and no
+  duplicated
+  `#informations` block.
 - Preview and export invoices, credit notes, receipts, vendor documents, quotations, orders, Sales pro-formas, and the
   supported draft, cancelled, posted, self-billing, and separate invoice/shipping-address cases.
 - Confirm each visible title retains its translated document-type wording without the record identifier or trailing `#`,
@@ -249,15 +253,19 @@ record and company selection are retained across this `1.3.9` update.
   child invoice addresses, oversized logos, forced VAT, all six table styles, multiple companies, long addresses and
   wrapped detail values, and both A4 and Letter paper formats. Confirm company and recipient VAT render as
   `VAT <number>` without a colon, and test every missing email/VAT combination.
-- Confirm the title/details and details/addresses gaps are both 6 mm, and the address-to-email/VAT gap is half the
+- Confirm the title/details and details/addresses gaps are 6 mm, the completed masthead has exactly 24 mm of
+  non-collapsing space before shipping information or the report body, and the address-to-email/VAT gap is half the
   configured detail-line height.
-- Verify real single-page and multipage PDFs: the complete header and footer repeat, `Page X of Y` is exact, and invoice
-  splitting still works. Inspect header/body clearance and record any overflow from unusually tall content as the known
-  fixed-margin limitation.
-- Test a mixed-company batch containing LGR and built-in layouts and confirm the whole PDF receives the 110 mm
-  reservation. Then test a batch using only built-in layouts and confirm its original margins, title placement, and
-  `#informations` block remain unchanged.
-- Confirm the rebuilt archive contains exactly the nine allowlisted regular files, reports version `1.3.9`, and contains
+- Verify real single-page and multipage PDFs: the complete masthead appears only on the first page, the footer and
+  `Page X of Y` repeat, later pages do not reserve masthead height, and invoice splitting still works. Record any break
+  caused by unusually tall masthead content as the accepted wkhtmltopdf limitation.
+- Confirm an all-LGR Accounting or Sales batch receives an 11 mm top margin and zero header spacing. Test a mixed batch
+  containing LGR and built-in layouts and confirm the incoming paper-format margins and header spacing are preserved;
+  allow additional top whitespace on its LGR pages. Then test a batch using only built-in layouts and confirm its
+  original margins, title placement, and `#informations` block remain unchanged.
+- Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
+  footer selection remains correctly indexed.
+- Confirm the rebuilt archive contains exactly the nine allowlisted regular files, reports version `1.4.0`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.3.9` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.4.0` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection persists before updating production.
