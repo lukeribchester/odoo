@@ -11,21 +11,22 @@ contains:
 - An optional context-aware document title. Odoo's translated document-type wording is preserved while a trailing
   document identifier and separator are removed. Receipts use the title `Receipt`; no empty title space is reserved when
   no title remains.
-- An optional context-aware details grid directly beneath the title. Accounting, Sales, and the generic layout preview
+- An optional single-column details table 4 mm beneath the title. Accounting, Sales, and the generic layout preview
   provide built-in detail fragments. If a fragment exists without a title, it starts at the top left without an empty
   title row.
-- Structured company details in the left information column: the legal entity name, postal address, raw email address, a
-  one-line gap, and the raw VAT number. Missing optional values are omitted.
-- Recipient details in the adjacent information column: its mapped heading, legal entity name, postal address, and raw
-  VAT number when available.
+- Structured company details in the left information column: the legal entity name, postal address, a one-line gap,
+  unprefixed email address, and `VAT <number>`. If email is missing, the gap precedes VAT instead. Missing optional
+  values are omitted.
+- Recipient details in the adjacent information column: its mapped heading, legal entity name, postal address, a
+  one-line gap, and `VAT <number>` when available.
 - The company logo at the top right. The information area expands when no logo is configured.
 
 The title, details, company and recipient information, and logo repeat together on every generated PDF page. In the
 layout preview their order is title, details, then the address columns, with the logo remaining at the top right. The
 complete header is outside the report article and therefore reduces the body area available on each page.
 
-For Accounting and Sales PDFs whose batch contains at least one document using LGR, the module requests a 90 mm top
-margin and 90 mm header spacing through Odoo's supported report-rendering values. This reservation applies to the whole
+For Accounting and Sales PDFs whose batch contains at least one document using LGR, the module requests a 110 mm top
+margin and 110 mm header spacing through Odoo's supported report-rendering values. This reservation applies to the whole
 PDF batch so mixed-company batches remain safe. A custom paper format is not required. Batches using only built-in
 layouts retain Odoo's existing margin and spacing values.
 
@@ -44,33 +45,41 @@ The Accounting helper covers customer invoices, customer credit notes, sales rec
 notes, and purchase receipts, including their applicable draft, cancelled, posted, pro-forma, and self-billing contexts.
 It uses Odoo's existing field conditions and formatting and can display:
 
-| Row | Left detail                      | Right detail                   |
-|-----|----------------------------------|--------------------------------|
-| 1   | Context-specific document number | Context-specific document date |
-| 2   | Due date                         | Delivery date                  |
-| 3   | Taxable-supply date              | Source document                |
-| 4   | Customer code                    | Reference                      |
-| 5   | Incoterm and location            | —                              |
+| Order | Detail                           |
+|-------|----------------------------------|
+| 1     | Context-specific document number |
+| 2     | Context-specific document date   |
+| 3     | Due date                         |
+| 4     | Delivery date                    |
+| 5     | Taxable-supply date              |
+| 6     | Source document                  |
+| 7     | Customer code                    |
+| 8     | Reference                        |
+| 9     | Incoterm and location            |
 
 The Sales helper covers quotations, sales orders, and Sales pro-forma invoices and can display:
 
-| Row | Left detail                      | Right detail          |
-|-----|----------------------------------|-----------------------|
-| 1   | Context-specific document number | Customer reference    |
-| 2   | Context-specific document date   | Expiration date       |
-| 3   | Delivery date                    | Incoterm and location |
-| 4   | Contact                          | —                     |
+| Order | Detail                           |
+|-------|----------------------------------|
+| 1     | Context-specific document number |
+| 2     | Customer reference               |
+| 3     | Context-specific document date   |
+| 4     | Expiration date                  |
+| 5     | Delivery date                    |
+| 6     | Incoterm and location            |
+| 7     | Contact                          |
 
-Missing pairs are omitted, and a row is omitted when neither pair has a value. Long values wrap instead of being
-truncated. The generic layout preview displays its dummy invoice number, invoice date, and due date in the same grid.
-Active invoice and quotation previews use their Accounting and Sales helpers and real record values.
+Each detail occupies one label/value row, and the complete row is omitted when its value is unavailable. Long values
+wrap instead of being truncated. The generic layout preview displays its dummy invoice number, invoice date, and due
+date in the same single-column table. Active invoice and quotation previews use their Accounting and Sales helpers and
+real record values.
 
 Odoo's original `#informations` nodes remain in their report templates so other inherited views can still target them.
 When LGR receives a details fragment, an LGR-scoped article class hides the original block to prevent duplication. Other
 document layouts continue to show the original block unchanged.
 
 Fields added by a localization or Studio only to the original `#informations` block do not automatically move into LGR's
-grid. Extend the appropriate LGR helper when such a field should appear in the masthead. The standard Dutch SaaS 19.3
+table. Extend the appropriate LGR helper when such a field should appear in the masthead. The standard Dutch SaaS 19.3
 invoice path is covered.
 
 ## Recipient mappings
@@ -86,9 +95,10 @@ a mapped context do not display a recipient heading:
 | Document-layout preview                   | Existing preview `address` fragment | To         |
 | Other reports                             | Existing `address` fragment         | No heading |
 
-For record-based recipients, the selected invoice/postal address is displayed with the commercial entity's name and VAT
-number. Sales reports keep a separate shipping-only information block when the shipping and invoice addresses differ.
-Accounting's existing shipping information block is preserved in the report body.
+For record-based recipients, the selected invoice/postal address is displayed with the commercial entity's name, a
+one-line gap, and `VAT <number>` when available. Pre-rendered fallback `address` fragments remain caller-controlled and
+are not rewritten. Sales reports keep a separate shipping-only information block when the shipping and invoice addresses
+differ. Accounting's existing shipping information block is preserved in the report body.
 
 ## QWeb caller interface
 
@@ -124,8 +134,9 @@ are agreed.
 
 Company data is intentionally read from structured `res.company` and `res.partner` fields rather than the rich-text
 **Company Details** editor. The header does not display the structured company phone or registration number. Company
-email and VAT are displayed without prefixes; VAT is resolved as `forced_vat or company.vat` and follows the email and
-one-line gap.
+email is displayed without a prefix. After the postal address, a one-line gap precedes the email, followed immediately
+by `VAT <number>`. If email is unavailable, the gap precedes VAT instead. VAT is resolved as
+`forced_vat or company.vat`.
 
 ## SaaS compatibility, dependencies, and scope
 
@@ -141,10 +152,11 @@ This implementation intentionally does not adapt `account.payment` payment recei
 country modules that select a different primary invoice report. Those report families require their own small adapters
 and should be added only when the corresponding applications or localized reports are in scope.
 
-The 90 mm reservation is intentionally limited to the standard Accounting invoice and Sales order/pro-forma report
-containers supported by this module. It accommodates all mapped detail rows, company and recipient addresses of up to
-five lines, and detail values wrapping to at most two lines. Longer or heavily customized header content can exceed a
-fixed margin and must be tested separately. Reserving this space can increase the number of pages in a report.
+The 110 mm reservation is intentionally limited to the standard Accounting invoice and Sales order/pro-forma report
+containers supported by this module. The single-column table can contain up to nine Accounting rows or seven Sales rows.
+With the current typography, unusually tall addresses or wrapped values can exceed the fixed reservation and overlap the
+body; this accepted limitation must be tested against real company data. Reserving this space can increase the number of
+pages in a report.
 
 ## Package, install, and update on Odoo Online
 
@@ -163,7 +175,7 @@ fixed margin and must be tested separately. Reserving this space can increase th
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record and company selection are retained across this `1.3.1` update.
+record and company selection are retained across this `1.3.3` update.
 
 ## Validation checklist
 
@@ -172,15 +184,18 @@ record and company selection are retained across this `1.3.1` update.
 - Preview and export invoices, credit notes, receipts, vendor documents, quotations, orders, Sales pro-formas, and the
   supported draft, cancelled, posted, self-billing, and separate invoice/shipping-address cases.
 - Confirm each visible title retains its translated document-type wording without the record identifier or trailing `#`,
-  while the document number appears in the details grid and the complete hidden title remains available for invoice
-  splitting.
+  while the document number appears in the single-column details table and the complete hidden title remains available
+  for invoice splitting.
 - Test missing and long detail values, partner-language date/field formatting and any installed LGR label translations,
-  child invoice addresses, oversized logos, forced VAT, all six table styles, multiple companies, five-line addresses,
-  two-line detail values, and both A4 and Letter paper formats.
-- Verify real single-page and multipage PDFs: the complete header repeats identically, the report body begins at least 4
-  mm below it, the footer repeats, `Page X of Y` is exact, and invoice splitting still works.
-- Test a mixed-company batch containing LGR and built-in layouts and confirm the whole PDF receives the safe 90 mm
+  child invoice addresses, oversized logos, forced VAT, all six table styles, multiple companies, long addresses and
+  wrapped detail values, and both A4 and Letter paper formats. Confirm company and recipient VAT render as
+  `VAT <number>`
+  without a colon, and test every missing email/VAT combination.
+- Verify real single-page and multipage PDFs: the complete header and footer repeat, `Page X of Y` is exact, and invoice
+  splitting still works. Inspect header/body clearance and record any overflow from unusually tall content as the known
+  fixed-margin limitation.
+- Test a mixed-company batch containing LGR and built-in layouts and confirm the whole PDF receives the 110 mm
   reservation. Then test a batch using only built-in layouts and confirm its original margins, title placement, and
   `#informations` block remain unchanged.
-- Import version `1.3.1` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.3.3` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection persists before updating production.

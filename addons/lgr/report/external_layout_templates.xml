@@ -110,11 +110,13 @@
                                                 <div class="o_lgr_company_address"
                                                      t-field="company.partner_id"
                                                      t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
-                                                <div t-if="company.email" class="o_lgr_detail_line">
+                                                <div t-if="company.email"
+                                                     class="o_lgr_detail_line o_lgr_post_address">
                                                     <span t-field="company.email">info@example.com</span>
                                                 </div>
                                                 <div t-if="lgr_company_vat and lgr_company_vat != '/'"
-                                                     class="o_lgr_detail_line o_lgr_company_vat">
+                                                     t-attf-class="o_lgr_detail_line {{not company.email and 'o_lgr_post_address' or ''}}">
+                                                    <span class="o_lgr_vat_prefix">VAT</span>
                                                     <span t-out="lgr_company_vat">NL123456789B01</span>
                                                 </div>
                                             </td>
@@ -135,7 +137,8 @@
                                                          t-out="lgr_effective_recipient"
                                                          t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
                                                     <div t-if="lgr_recipient_legal_entity.vat and lgr_recipient_legal_entity.vat != '/'"
-                                                         class="o_lgr_detail_line">
+                                                         class="o_lgr_detail_line o_lgr_post_address">
+                                                        <span class="o_lgr_vat_prefix">VAT</span>
                                                         <span t-field="lgr_recipient_legal_entity.vat">NL987654321B01
                                                         </span>
                                                     </div>

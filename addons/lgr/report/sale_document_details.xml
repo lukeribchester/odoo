@@ -19,13 +19,11 @@
                  or doc.user_id.name">
             <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_document_details_table">
                 <colgroup>
-                    <col style="width: 20%;"/>
-                    <col style="width: 30%;"/>
-                    <col style="width: 20%;"/>
-                    <col style="width: 30%;"/>
+                    <col style="width: 35%;"/>
+                    <col style="width: 65%;"/>
                 </colgroup>
                 <tbody>
-                    <tr t-if="lgr_has_sale_document_number or doc.client_order_ref">
+                    <tr t-if="lgr_has_sale_document_number">
                         <td class="o_lgr_document_detail_label">
                             <strong t-if="lgr_has_sale_document_number">
                                 <t t-if="is_proforma">Pro Forma Invoice Number</t>
@@ -36,6 +34,9 @@
                         <td class="o_lgr_document_detail_value">
                             <span t-if="lgr_has_sale_document_number" t-field="doc.name">SO0000</span>
                         </td>
+                    </tr>
+
+                    <tr t-if="doc.client_order_ref">
                         <td class="o_lgr_document_detail_label">
                             <strong t-if="doc.client_order_ref">Customer Reference</strong>
                         </td>
@@ -44,7 +45,7 @@
                         </td>
                     </tr>
 
-                    <tr t-if="doc.date_order or lgr_has_sale_expiration">
+                    <tr t-if="doc.date_order">
                         <td class="o_lgr_document_detail_label">
                             <strong t-if="doc.date_order">
                                 <t t-if="is_proforma">Issued Date</t>
@@ -58,6 +59,9 @@
                                   t-options='{"widget": "date"}'>2026-08-18
                             </span>
                         </td>
+                    </tr>
+
+                    <tr t-if="lgr_has_sale_expiration">
                         <td class="o_lgr_document_detail_label">
                             <strong t-if="lgr_has_sale_expiration">Expiration</strong>
                         </td>
@@ -66,7 +70,7 @@
                         </td>
                     </tr>
 
-                    <tr t-if="doc.commitment_date or doc.incoterm">
+                    <tr t-if="doc.commitment_date">
                         <td class="o_lgr_document_detail_label">
                             <strong t-if="doc.commitment_date">Delivery Date</strong>
                         </td>
@@ -76,6 +80,9 @@
                                   t-options='{"widget": "date"}'>2026-08-18
                             </span>
                         </td>
+                    </tr>
+
+                    <tr t-if="doc.incoterm">
                         <td class="o_lgr_document_detail_label">
                             <strong t-if="doc.incoterm">Incoterm</strong>
                         </td>
@@ -96,8 +103,6 @@
                         <td class="o_lgr_document_detail_value">
                             <span t-field="doc.user_id">Mitchell Admin</span>
                         </td>
-                        <td class="o_lgr_document_detail_label"/>
-                        <td class="o_lgr_document_detail_value"/>
                     </tr>
                 </tbody>
             </table>
@@ -127,10 +132,10 @@
     <template id="report_saleorder_raw_lgr_header_margins"
               inherit_id="sale.report_saleorder_raw">
         <t t-call="web.html_container" position="attributes">
-            <attribute name="data_report_margin_top">90 if 'lgr.external_layout_lgr' in
+            <attribute name="data_report_margin_top">110 if 'lgr.external_layout_lgr' in
                 docs.mapped('company_id.external_report_layout_id').sudo().mapped('key') else data_report_margin_top
             </attribute>
-            <attribute name="data_report_header_spacing">90 if 'lgr.external_layout_lgr' in
+            <attribute name="data_report_header_spacing">110 if 'lgr.external_layout_lgr' in
                 docs.mapped('company_id.external_report_layout_id').sudo().mapped('key') else data_report_header_spacing
             </attribute>
         </t>
@@ -139,10 +144,10 @@
     <template id="report_saleorder_pro_forma_lgr_header_margins"
               inherit_id="sale.report_saleorder_pro_forma">
         <t t-call="web.html_container" position="attributes">
-            <attribute name="data_report_margin_top">90 if 'lgr.external_layout_lgr' in
+            <attribute name="data_report_margin_top">110 if 'lgr.external_layout_lgr' in
                 docs.mapped('company_id.external_report_layout_id').sudo().mapped('key') else data_report_margin_top
             </attribute>
-            <attribute name="data_report_header_spacing">90 if 'lgr.external_layout_lgr' in
+            <attribute name="data_report_header_spacing">110 if 'lgr.external_layout_lgr' in
                 docs.mapped('company_id.external_report_layout_id').sudo().mapped('key') else data_report_header_spacing
             </attribute>
         </t>
