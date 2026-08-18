@@ -24,15 +24,16 @@ excluded from document-table styling.
 
 ## Recipient mappings
 
-Unless a caller supplies an explicit LGR override, the layout resolves recipients as follows:
+The layout resolves recipients and their headings as follows. Headings come solely from these mappings; reports without
+a mapped context do not display a recipient heading:
 
-| Report context                            | Recipient                           | Heading                       |
-|-------------------------------------------|-------------------------------------|-------------------------------|
-| Customer invoice, credit note, or receipt | `account.move.partner_id`           | Bill to                       |
-| Vendor bill, credit note, or receipt      | `account.move.partner_id`           | Supplier                      |
-| Quotation or sales order                  | `sale.order.partner_invoice_id`     | Bill to                       |
-| Document-layout preview                   | Existing preview `address` fragment | Bill to                       |
-| Other reports                             | Existing `address` fragment         | Caller heading, or no heading |
+| Report context                            | Recipient                           | Heading    |
+|-------------------------------------------|-------------------------------------|------------|
+| Customer invoice, credit note, or receipt | `account.move.partner_id`           | To         |
+| Vendor bill, credit note, or receipt      | `account.move.partner_id`           | From       |
+| Quotation or sales order                  | `sale.order.partner_invoice_id`     | To         |
+| Document-layout preview                   | Existing preview `address` fragment | To         |
+| Other reports                             | Existing `address` fragment         | No heading |
 
 For record-based recipients, the selected invoice/postal address is displayed with the commercial entity's name and VAT
 number. Sales reports keep a separate shipping-only information block when the shipping and invoice addresses differ.
@@ -50,7 +51,6 @@ LGR continues to honor these standard Odoo caller values:
 Future nested report templates may additionally set:
 
 - `lgr_recipient`: a `res.partner` record that overrides the built-in recipient mapping.
-- `lgr_recipient_title`: optional translated QWeb content or text that overrides the built-in recipient heading.
 
 Company data is intentionally read from structured `res.company` and
 `res.partner` fields rather than the rich-text **Company Details** editor. KvK is read from

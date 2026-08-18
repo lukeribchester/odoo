@@ -29,18 +29,18 @@
                t-set="lgr_effective_recipient"
                t-value="o.partner_invoice_id"/>
 
-            <t t-set="lgr_effective_recipient_title" t-value="lgr_recipient_title or False"/>
-            <t t-if="not lgr_effective_recipient_title and lgr_is_outgoing_account_document"
-               t-set="lgr_effective_recipient_title">Bill to
+            <t t-set="lgr_effective_recipient_title" t-value="False"/>
+            <t t-if="lgr_is_outgoing_account_document"
+               t-set="lgr_effective_recipient_title">To
             </t>
-            <t t-if="not lgr_effective_recipient_title and lgr_is_incoming_account_document"
-               t-set="lgr_effective_recipient_title">Supplier
+            <t t-if="lgr_is_incoming_account_document"
+               t-set="lgr_effective_recipient_title">From
             </t>
-            <t t-if="not lgr_effective_recipient_title and lgr_is_sale_order"
-               t-set="lgr_effective_recipient_title">Bill to
+            <t t-if="lgr_is_sale_order"
+               t-set="lgr_effective_recipient_title">To
             </t>
-            <t t-if="not lgr_effective_recipient_title and is_preview"
-               t-set="lgr_effective_recipient_title">Bill to
+            <t t-if="is_preview"
+               t-set="lgr_effective_recipient_title">To
             </t>
 
             <t t-set="lgr_company_vat" t-value="forced_vat or company.vat"/>
@@ -89,7 +89,7 @@
                                             <td t-if="lgr_effective_recipient or address"
                                                 class="align-top o_lgr_recipient_column">
                                                 <div t-if="lgr_effective_recipient_title" class="o_lgr_entity_heading">
-                                                    <t t-out="lgr_effective_recipient_title">Bill to</t>
+                                                    <t t-out="lgr_effective_recipient_title"/>
                                                 </div>
                                                 <t t-if="lgr_effective_recipient">
                                                     <t t-set="lgr_recipient_legal_entity"
