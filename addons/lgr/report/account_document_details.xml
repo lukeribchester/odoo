@@ -8,6 +8,8 @@
     <template id="account_move_document_details"
               name="LGR Accounting Document Details">
         <t t-set="lgr_has_document_number" t-value="o.name and o.name != '/'"/>
+        <t t-set="lgr_is_debit_note"
+           t-value="o.move_type == 'out_invoice' and 'debit_origin_id' in o and o.debit_origin_id"/>
         <t t-set="lgr_has_due_date"
            t-value="o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted'"/>
         <t t-set="lgr_has_taxable_supply_date"
@@ -32,23 +34,15 @@
                     <tr t-if="lgr_has_document_number">
                         <td class="o_lgr_document_detail_label">
                             <strong>
-                                <t t-if="proforma and o.move_type == 'out_invoice'">Proforma Invoice Number</t>
-                                <t t-elif="proforma and o.move_type == 'out_refund'">Proforma Credit Note Number</t>
-                                <t t-elif="proforma and o.move_type == 'in_refund'">Proforma Vendor Credit Note Number
-                                </t>
-                                <t t-elif="proforma and o.move_type == 'in_invoice'">Bill Number</t>
+                                <t t-if="lgr_is_debit_note">Debit Note Number</t>
                                 <t t-elif="o.move_type == 'out_invoice'">Invoice Number</t>
-                                <t t-elif="o.move_type == 'out_refund'">Credit Note Number</t>
-                                <t t-elif="o.move_type == 'out_receipt'">Receipt Number</t>
-                                <t t-elif="o.move_type == 'in_refund' and o.journal_id.is_self_billing">Self Billing
-                                    Credit Note Number
-                                </t>
-                                <t t-elif="o.move_type == 'in_refund'">Vendor Credit Note Number</t>
-                                <t t-elif="o.move_type == 'in_invoice' and o.journal_id.is_self_billing">Self Billing
+                                <t t-elif="o.move_type in ('out_refund', 'in_refund')">Credit Note Number</t>
+                                <t t-elif="o.move_type in ('out_receipt', 'in_receipt')">Receipt Number</t>
+                                <t t-elif="proforma and o.move_type == 'in_invoice'">Bill Number</t>
+                                <t t-elif="o.move_type == 'in_invoice' and o.journal_id.is_self_billing">Invoice
                                     Number
                                 </t>
                                 <t t-elif="o.move_type == 'in_invoice'">Bill Number</t>
-                                <t t-elif="o.move_type == 'in_receipt'">Purchase Receipt Number</t>
                             </strong>
                         </td>
                         <td class="o_lgr_document_detail_value">
@@ -59,10 +53,14 @@
                     <tr t-if="o.invoice_date">
                         <td class="o_lgr_document_detail_label">
                             <strong>
-                                <t t-if="o.move_type == 'out_invoice'">Invoice Date</t>
-                                <t t-elif="o.move_type == 'out_refund'">Credit Note Date</t>
-                                <t t-elif="o.move_type == 'out_receipt'">Receipt Date</t>
-                                <t t-else="">Date</t>
+                                <t t-if="lgr_is_debit_note">Debit Note Date</t>
+                                <t t-elif="o.move_type == 'out_invoice'">Invoice Date</t>
+                                <t t-elif="o.move_type in ('out_refund', 'in_refund')">Credit Note Date</t>
+                                <t t-elif="o.move_type in ('out_receipt', 'in_receipt')">Receipt Date</t>
+                                <t t-elif="proforma and o.move_type == 'in_invoice'">Bill Date</t>
+                                <t t-elif="o.move_type == 'in_invoice' and o.journal_id.is_self_billing">Invoice Date
+                                </t>
+                                <t t-elif="o.move_type == 'in_invoice'">Bill Date</t>
                             </strong>
                         </td>
                         <td class="o_lgr_document_detail_value">
@@ -108,7 +106,10 @@
 
                     <tr t-if="o.partner_id.ref">
                         <td class="o_lgr_document_detail_label">
-                            <strong>Customer Code</strong>
+                            <strong>
+                                <t t-if="o.move_type in ('out_invoice', 'out_refund', 'out_receipt')">Customer Code</t>
+                                <t t-else="">Vendor Code</t>
+                            </strong>
                         </td>
                         <td class="o_lgr_document_detail_value">
                             <span t-field="o.partner_id.ref">CUST-001</span>

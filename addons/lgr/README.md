@@ -54,7 +54,7 @@ It uses Odoo's existing field conditions and formatting and can display:
 | 4     | Delivery date                    |
 | 5     | Taxable-supply date              |
 | 6     | Source document (outgoing only)  |
-| 7     | Customer code                    |
+| 7     | Customer or vendor code          |
 | 8     | Reference                        |
 | 9     | Incoterm and location            |
 
@@ -77,9 +77,32 @@ labels and translations may wrap. The generic layout preview displays its dummy 
 date in the same single-column table. Active invoice and quotation previews use their Accounting and Sales helpers and
 real record values.
 
-The optional Source row is limited to outgoing customer invoices, credit notes, and sales receipts. Incoming vendor
-documents retain their stored Odoo source data but do not display it in LGR. Standard and pro-forma vendor bills use the
-compact number label `Bill Number`; self-billing, vendor-credit-note, and purchase-receipt labels remain distinct.
+Accounting number and date labels are selected in this order, without changing the fields that supply their values:
+
+| Condition                                   | Number label       | Date label       |
+|---------------------------------------------|--------------------|------------------|
+| Outgoing invoice with a debit origin        | Debit Note Number  | Debit Note Date  |
+| Other outgoing invoice                      | Invoice Number     | Invoice Date     |
+| Outgoing or incoming refund                 | Credit Note Number | Credit Note Date |
+| Sales or purchase receipt                   | Receipt Number     | Receipt Date     |
+| Pro-forma incoming invoice                  | Bill Number        | Bill Date        |
+| Non-pro-forma self-billing incoming invoice | Invoice Number     | Invoice Date     |
+| Other incoming invoice                      | Bill Number        | Bill Date        |
+
+The document number continues to come from `account.move.name`, with `/` suppressed, and `account.move.ref` continues to
+appear separately as `Reference`. The partner reference is labelled `Customer Code` for outgoing documents and
+`Vendor Code` for incoming documents. The optional Source row is limited to outgoing customer invoices, credit notes,
+and sales receipts; incoming documents retain their stored Odoo source data but do not display it in LGR.
+
+The visible title carries qualifiers such as draft, cancelled, pro-forma, vendor, and self-billing, so those qualifiers
+are not repeated in the compact detail labels. The pro-forma incoming-invoice rule deliberately precedes the
+self-billing rule: a pro-forma incoming self-billing invoice retains Odoo's `Proforma Vendor Bill` title and uses
+`Bill Number` / `Bill Date`, while a non-pro-forma self-billing incoming invoice uses `Invoice Number` / `Invoice Date`.
+If the optional `account_debit_note` module is installed, outgoing invoices with a debit origin use the debit-note pair;
+field-presence detection provides this compatibility without adding that module as a dependency.
+
+Sales terminology remains aligned with Odoo: Sales pro-formas use `Pro Forma Invoice Number` / `Issued Date`, quotations
+use `Quotation Number` / `Quotation Date`, and orders use `Order Number` / `Order Date`.
 
 Odoo's original `#informations` nodes remain in their report templates so other inherited views can still target them.
 When LGR receives a details fragment, an LGR-scoped article class hides the original block to prevent duplication. Other
@@ -87,7 +110,10 @@ document layouts continue to show the original block unchanged.
 
 Fields added by a localization or Studio only to the original `#informations` block do not automatically move into LGR's
 table. Extend the appropriate LGR helper when such a field should appear in the masthead. The standard Dutch SaaS 19.3
-invoice path is covered.
+invoice template path is covered. This statement describes the inherited report path, not a legal-compliance
+certification. LGR intentionally omits some structured company fields, including the registration number, so each
+organization remains responsible for verifying that its complete document content meets its applicable invoicing
+requirements.
 
 ## Recipient mappings
 
@@ -167,11 +193,21 @@ pages in a report.
 
 ## Package, install, and update on Odoo Online
 
-1. From the directory containing the addon, create an archive whose top-level directory is `lgr`:
+1. From the `addons` directory containing `lgr`, recreate the archive from the explicit nine-file allowlist. Removing
+   the previous archive first ensures that stale metadata or cache entries cannot survive an update:
 
    ```bash
-   zip -FSr lgr.zip lgr \
-       -x '*/__pycache__/*' '*.pyc' '*.DS_Store'
+   rm -f lgr.zip
+   zip -X lgr.zip \
+       lgr/__init__.py \
+       lgr/__manifest__.py \
+       lgr/README.md \
+       lgr/data/report_layout_data.xml \
+       lgr/report/external_layout_templates.xml \
+       lgr/report/account_document_details.xml \
+       lgr/report/sale_document_details.xml \
+       lgr/report/preview_document_details_templates.xml \
+       lgr/static/src/scss/lgr.scss
    ```
 
 2. Enable developer mode and ensure **Import Module** (`base_import_module`) is installed.
@@ -182,7 +218,7 @@ pages in a report.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record and company selection are retained across this `1.3.7` update.
+record and company selection are retained across this `1.3.8` update.
 
 ## Validation checklist
 
@@ -193,9 +229,15 @@ record and company selection are retained across this `1.3.7` update.
 - Confirm each visible title retains its translated document-type wording without the record identifier or trailing `#`,
   while the document number appears in the single-column details table and the complete hidden title remains available
   for invoice splitting.
-- Confirm Source appears only when populated on outgoing customer invoices, credit notes, and sales receipts. Verify it
-  remains hidden on vendor bills, vendor credits, and purchase receipts, and that standard and pro-forma vendor bills
-  use the label `Bill Number`.
+- Confirm every Accounting number/date pair follows the precedence table. Include ordinary and pro-forma incoming
+  self-billing invoices and, when `account_debit_note` is installed, ordinary and pro-forma outgoing debit notes. Also
+  confirm normal invoice rendering when that optional module is absent.
+- Confirm document numbers still use `account.move.name`, `/` remains suppressed, reversal-generated values in
+  `account.move.ref` remain generically labelled `Reference`, and partner references use `Customer Code` or
+  `Vendor Code` according to document direction.
+- Confirm Source appears only when populated on outgoing customer invoices, credit notes, and sales receipts, and
+  remains hidden on vendor bills, vendor credits, and purchase receipts. Confirm Sales and preview terminology is
+  unchanged.
 - Test missing and long detail values, partner-language date/field formatting and any installed LGR label translations,
   child invoice addresses, oversized logos, forced VAT, all six table styles, multiple companies, long addresses and
   wrapped detail values, and both A4 and Letter paper formats. Confirm company and recipient VAT render as
@@ -208,5 +250,7 @@ record and company selection are retained across this `1.3.7` update.
 - Test a mixed-company batch containing LGR and built-in layouts and confirm the whole PDF receives the 110 mm
   reservation. Then test a batch using only built-in layouts and confirm its original margins, title placement, and
   `#informations` block remain unchanged.
-- Import version `1.3.7` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Confirm the rebuilt archive contains exactly the nine allowlisted regular files, reports version `1.3.8`, and contains
+  no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
+- Import version `1.3.8` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection persists before updating production.
