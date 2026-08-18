@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Accounting owns the field selection, conditions, translatable wording,
+        and formatting. The external layout only decides where this trusted
+        body-form QWeb fragment is displayed.
+    -->
+    <template id="account_move_document_details"
+              name="LGR Accounting Document Details">
+        <t t-set="lgr_has_document_number" t-value="o.name and o.name != '/'"/>
+        <t t-set="lgr_has_due_date"
+           t-value="o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted'"/>
+        <t t-set="lgr_has_taxable_supply_date"
+           t-value="o.taxable_supply_date and o.show_taxable_supply_date"/>
+        <t t-if="lgr_has_document_number
+                 or o.invoice_date
+                 or lgr_has_due_date
+                 or o.delivery_date
+                 or lgr_has_taxable_supply_date
+                 or o.invoice_origin
+                 or o.partner_id.ref
+                 or o.ref
+                 or o.invoice_incoterm_id">
+            <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_document_details_table">
+                <colgroup>
+                    <col style="width: 20%;"/>
+                    <col style="width: 30%;"/>
+                    <col style="width: 20%;"/>
+                    <col style="width: 30%;"/>
+                </colgroup>
+                <tbody>
+                    <tr t-if="lgr_has_document_number or o.invoice_date">
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="lgr_has_document_number">
+                                <t t-if="proforma and o.move_type == 'out_invoice'">Proforma Invoice Number</t>
+                                <t t-elif="proforma and o.move_type == 'out_refund'">Proforma Credit Note Number</t>
+                                <t t-elif="proforma and o.move_type == 'in_refund'">Proforma Vendor Credit Note Number
+                                </t>
+                                <t t-elif="proforma and o.move_type == 'in_invoice'">Proforma Vendor Bill Number</t>
+                                <t t-elif="o.move_type == 'out_invoice'">Invoice Number</t>
+                                <t t-elif="o.move_type == 'out_refund'">Credit Note Number</t>
+                                <t t-elif="o.move_type == 'out_receipt'">Receipt Number</t>
+                                <t t-elif="o.move_type == 'in_refund' and o.journal_id.is_self_billing">Self Billing
+                                    Credit Note Number
+                                </t>
+                                <t t-elif="o.move_type == 'in_refund'">Vendor Credit Note Number</t>
+                                <t t-elif="o.move_type == 'in_invoice' and o.journal_id.is_self_billing">Self Billing
+                                    Number
+                                </t>
+                                <t t-elif="o.move_type == 'in_invoice'">Vendor Bill Number</t>
+                                <t t-elif="o.move_type == 'in_receipt'">Purchase Receipt Number</t>
+                            </strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="lgr_has_document_number" t-field="o.name">INV/2026/00001</span>
+                        </td>
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="o.invoice_date">
+                                <t t-if="o.move_type == 'out_invoice'">Invoice Date</t>
+                                <t t-elif="o.move_type == 'out_refund'">Credit Note Date</t>
+                                <t t-elif="o.move_type == 'out_receipt'">Receipt Date</t>
+                                <t t-else="">Date</t>
+                            </strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="o.invoice_date" t-field="o.invoice_date">2026-08-18</span>
+                        </td>
+                    </tr>
+
+                    <tr t-if="lgr_has_due_date or o.delivery_date">
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="lgr_has_due_date">Due Date</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="lgr_has_due_date" t-field="o.invoice_date_due">2026-09-17</span>
+                        </td>
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="o.delivery_date">Delivery Date</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="o.delivery_date" t-field="o.delivery_date">2026-08-18</span>
+                        </td>
+                    </tr>
+
+                    <tr t-if="lgr_has_taxable_supply_date or o.invoice_origin">
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="lgr_has_taxable_supply_date">Taxable Supply</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="lgr_has_taxable_supply_date" t-field="o.taxable_supply_date">2026-08-18</span>
+                        </td>
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="o.invoice_origin">Source</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="o.invoice_origin" t-field="o.invoice_origin">SO123</span>
+                        </td>
+                    </tr>
+
+                    <tr t-if="o.partner_id.ref or o.ref">
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="o.partner_id.ref">Customer Code</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="o.partner_id.ref" t-field="o.partner_id.ref">CUST-001</span>
+                        </td>
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="o.ref">Reference</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="o.ref" t-field="o.ref">PO-2026-001</span>
+                        </td>
+                    </tr>
+
+                    <tr t-if="o.invoice_incoterm_id">
+                        <td class="o_lgr_document_detail_label">
+                            <strong>Incoterm</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <t t-if="o.incoterm_location">
+                                <span t-field="o.invoice_incoterm_id.code">FCA</span>
+                                <br/>
+                                <span t-field="o.incoterm_location">Amsterdam</span>
+                            </t>
+                            <span t-else="" t-field="o.invoice_incoterm_id.code">FCA</span>
+                        </td>
+                        <td class="o_lgr_document_detail_label"/>
+                        <td class="o_lgr_document_detail_value"/>
+                    </tr>
+                </tbody>
+            </table>
+        </t>
+    </template>
+
+    <!--
+        This is an extension of Odoo's invoice view, not a replacement report.
+        Other layouts ignore the extra call argument.
+    -->
+    <template id="report_invoice_document_lgr_details"
+              inherit_id="account.report_invoice_document">
+        <t t-call="web.external_layout" position="before">
+            <t t-set="lgr_document_details">
+                <t t-call="lgr.account_move_document_details"/>
+            </t>
+        </t>
+        <t t-call="web.external_layout" position="attributes">
+            <attribute name="lgr_document_details">lgr_document_details</attribute>
+        </t>
+    </template>
+</odoo>

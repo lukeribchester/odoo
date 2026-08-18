@@ -1,5 +1,5 @@
-// LGR's header and footer use tables deliberately: wkhtmltopdf does not reliably
-// support the modern layout primitives used by browser-only views.
+// LGR's structural report tables deliberately avoid modern layout primitives
+// that wkhtmltopdf does not reliably support.
 .o_lgr_layout {
   font-size: .875rem;
   line-height: 1.25;
@@ -45,14 +45,6 @@
     max-width: 100%;
     height: auto;
     max-height: 22mm;
-  }
-
-  .o_lgr_document_title {
-    margin: 0 0 4mm;
-    font-size: 1.35rem;
-    font-weight: 700;
-    line-height: 1.15;
-    word-wrap: break-word;
   }
 
   .o_lgr_details_table {
@@ -108,6 +100,71 @@
 
   .o_lgr_company_vat {
     padding-top: 1.25em;
+  }
+}
+
+.o_lgr_article {
+  .o_lgr_document_masthead {
+    margin: 0 0 4mm;
+    font-size: .875rem;
+    line-height: 1.25;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .o_lgr_document_title {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.15;
+    word-wrap: break-word;
+  }
+
+  .o_lgr_document_details_with_title {
+    margin-top: 2mm;
+  }
+
+  .o_lgr_document_details_table {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    background: transparent;
+
+    th,
+    td {
+      box-sizing: border-box;
+      border: 0;
+      background: transparent;
+    }
+
+    .o_lgr_document_detail_label,
+    .o_lgr_document_detail_value {
+      padding: .5mm 3mm .5mm 0;
+      vertical-align: top;
+      line-height: 1.2;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    .o_lgr_document_detail_label {
+      width: 20%;
+      font-weight: 700;
+    }
+
+    .o_lgr_document_detail_value {
+      width: 30%;
+    }
+
+    td:last-child {
+      padding-right: 0;
+    }
+  }
+
+  &.o_lgr_hide_standard_document_details #informations {
+    display: none;
   }
 }
 

@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!--
+        Keep Odoo's shared article contract in an independent primary view.
+        LGR adds only its first-page masthead and layout-specific classes;
+        editor metadata, the hidden PDF title, and the caller's document slot
+        remain owned by web.external_layout_body.
+    -->
+    <template id="external_layout_body_lgr"
+              name="LGR Report Body"
+              inherit_id="web.external_layout_body"
+              primary="True">
+        <xpath expr="//div[contains(@t-attf-class, ' article ')]" position="attributes">
+            <attribute name="t-attf-class"
+                       add="o_lgr_article {{lgr_document_details and 'o_lgr_hide_standard_document_details' or ''}}"
+                       separator=" "/>
+        </xpath>
+
+        <xpath expr="//h2[@t-if='not hide_title']" position="before">
+            <div t-if="lgr_visible_document_title or lgr_document_details"
+                 class="o_lgr_document_masthead">
+                <h2 t-if="lgr_visible_document_title"
+                    class="o_lgr_document_title"
+                    t-out="lgr_visible_document_title"/>
+                <div t-if="lgr_document_details"
+                     t-attf-class="o_lgr_document_details {{lgr_visible_document_title and 'o_lgr_document_details_with_title' or ''}}">
+                    <t t-out="lgr_document_details"/>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!--
         A primary inherited view creates an independent layout without changing
         Odoo's built-in Light layout. Focused replacements retain the shared
         Odoo report-body contract while giving LGR its own header and footer.
@@ -69,11 +99,6 @@
                             <td t-attf-class="align-top o_lgr_header_content {{not company.logo and 'o_lgr_header_content_full' or ''}}">
                                 <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_details_table">
                                     <tbody>
-                                        <tr t-if="lgr_visible_document_title">
-                                            <td colspan="2">
-                                                <h2 class="o_lgr_document_title" t-out="lgr_visible_document_title"/>
-                                            </td>
-                                        </tr>
                                         <tr>
                                             <td t-att-colspan="not (lgr_effective_recipient or address) and 2 or 1"
                                                 t-attf-class="align-top o_lgr_company_column {{not (lgr_effective_recipient or address) and 'o_lgr_company_column_full' or ''}}">
@@ -133,7 +158,7 @@
         </xpath>
 
         <xpath expr="//t[@t-call='web.external_layout_body']" position="replace">
-            <t t-call="web.external_layout_body"
+            <t t-call="lgr.external_layout_body_lgr"
                hide_recipient_address="True"
                hide_title="True">
                 <div t-if="lgr_is_sale_order and o.partner_shipping_id and o.partner_shipping_id != o.partner_invoice_id"

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Sales owns the field selection, conditions, translatable wording, and
+        formatting. The external layout only decides where this trusted
+        body-form QWeb fragment is displayed.
+    -->
+    <template id="sale_order_document_details"
+              name="LGR Sales Document Details">
+        <t t-set="lgr_has_sale_document_number" t-value="doc.name"/>
+        <t t-set="lgr_has_sale_expiration"
+           t-value="doc.validity_date and doc.state in ['draft', 'sent']"/>
+        <t t-if="lgr_has_sale_document_number
+                 or doc.client_order_ref
+                 or doc.date_order
+                 or lgr_has_sale_expiration
+                 or doc.commitment_date
+                 or doc.incoterm
+                 or doc.user_id.name">
+            <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_document_details_table">
+                <colgroup>
+                    <col style="width: 20%;"/>
+                    <col style="width: 30%;"/>
+                    <col style="width: 20%;"/>
+                    <col style="width: 30%;"/>
+                </colgroup>
+                <tbody>
+                    <tr t-if="lgr_has_sale_document_number or doc.client_order_ref">
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="lgr_has_sale_document_number">
+                                <t t-if="is_proforma">Pro Forma Invoice Number</t>
+                                <t t-elif="doc.state in ['draft', 'sent']">Quotation Number</t>
+                                <t t-else="">Order Number</t>
+                            </strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="lgr_has_sale_document_number" t-field="doc.name">SO0000</span>
+                        </td>
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="doc.client_order_ref">Customer Reference</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="doc.client_order_ref" t-field="doc.client_order_ref">PO-2026-001</span>
+                        </td>
+                    </tr>
+
+                    <tr t-if="doc.date_order or lgr_has_sale_expiration">
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="doc.date_order">
+                                <t t-if="is_proforma">Issued Date</t>
+                                <t t-elif="doc.state in ['draft', 'sent']">Quotation Date</t>
+                                <t t-else="">Order Date</t>
+                            </strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="doc.date_order"
+                                  t-field="doc.date_order"
+                                  t-options='{"widget": "date"}'>2026-08-18
+                            </span>
+                        </td>
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="lgr_has_sale_expiration">Expiration</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="lgr_has_sale_expiration" t-field="doc.validity_date">2026-09-17</span>
+                        </td>
+                    </tr>
+
+                    <tr t-if="doc.commitment_date or doc.incoterm">
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="doc.commitment_date">Delivery Date</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-if="doc.commitment_date"
+                                  t-field="doc.commitment_date"
+                                  t-options='{"widget": "date"}'>2026-08-18
+                            </span>
+                        </td>
+                        <td class="o_lgr_document_detail_label">
+                            <strong t-if="doc.incoterm">Incoterm</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <t t-if="doc.incoterm and doc.incoterm_location">
+                                <span t-field="doc.incoterm.code">FCA</span>
+                                <br/>
+                                <span t-field="doc.incoterm_location">Amsterdam</span>
+                            </t>
+                            <span t-elif="doc.incoterm" t-field="doc.incoterm.code">FCA</span>
+                        </td>
+                    </tr>
+
+                    <tr t-if="doc.user_id.name">
+                        <td class="o_lgr_document_detail_label">
+                            <strong>Contact</strong>
+                        </td>
+                        <td class="o_lgr_document_detail_value">
+                            <span t-field="doc.user_id">Mitchell Admin</span>
+                        </td>
+                        <td class="o_lgr_document_detail_label"/>
+                        <td class="o_lgr_document_detail_value"/>
+                    </tr>
+                </tbody>
+            </table>
+        </t>
+    </template>
+
+    <!--
+        This is an extension of Odoo's Sales view, not a replacement report.
+        Other layouts ignore the extra call argument.
+    -->
+    <template id="report_saleorder_document_lgr_details"
+              inherit_id="sale.report_saleorder_document">
+        <t t-call="web.external_layout" position="before">
+            <t t-set="lgr_document_details">
+                <t t-call="lgr.sale_order_document_details"/>
+            </t>
+        </t>
+        <t t-call="web.external_layout" position="attributes">
+            <attribute name="lgr_document_details">lgr_document_details</attribute>
+        </t>
+    </template>
+</odoo>

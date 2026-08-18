@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Keep the generic layout preview representative of a real invoice. The
+        active-record previews use the Accounting or Sales detail helpers.
+    -->
+    <template id="preview_document_details">
+        <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_document_details_table">
+            <colgroup>
+                <col style="width: 20%;"/>
+                <col style="width: 30%;"/>
+                <col style="width: 20%;"/>
+                <col style="width: 30%;"/>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td class="o_lgr_document_detail_label">Invoice Number</td>
+                    <td class="o_lgr_document_detail_value">INV/2023/00003</td>
+                    <td class="o_lgr_document_detail_label">Invoice Date</td>
+                    <td class="o_lgr_document_detail_value">07/08/2020</td>
+                </tr>
+                <tr>
+                    <td class="o_lgr_document_detail_label">Due Date</td>
+                    <td class="o_lgr_document_detail_value">08/07/2020</td>
+                    <td class="o_lgr_document_detail_label"/>
+                    <td class="o_lgr_document_detail_value"/>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+
+    <template id="report_invoice_wizard_preview_document_details"
+              inherit_id="web.report_invoice_wizard_preview">
+        <xpath expr="//t[@t-call='web.external_layout']" position="before">
+            <t t-set="lgr_document_details">
+                <t t-call="lgr.preview_document_details"/>
+            </t>
+        </xpath>
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+            <attribute name="lgr_document_details">lgr_document_details</attribute>
+        </xpath>
+    </template>
+</odoo>
