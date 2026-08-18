@@ -71,10 +71,11 @@ The Sales helper covers quotations, sales orders, and Sales pro-forma invoices a
 | 7     | Contact                          |
 
 Each detail occupies one label/value row, and the complete row is omitted when its value is unavailable. Long values
-wrap instead of being truncated. Labels occupy 30% of the table, values occupy 70%, and a 2 mm right padding on the
-label cell provides the minimum gutter. The generic layout preview displays its dummy invoice number, invoice date, and
-due date in the same single-column table. Active invoice and quotation previews use their Accounting and Sales helpers
-and real record values.
+wrap instead of being truncated. Labels occupy 20% of the table, values occupy 80%, and a 2 mm right padding on the
+label cell provides the minimum gutter. This split is optimized for labels of up to approximately 14 characters; longer
+labels and translations may wrap. The generic layout preview displays its dummy invoice number, invoice date, and due
+date in the same single-column table. Active invoice and quotation previews use their Accounting and Sales helpers and
+real record values.
 
 Odoo's original `#informations` nodes remain in their report templates so other inherited views can still target them.
 When LGR receives a details fragment, an LGR-scoped article class hides the original block to prevent duplication. Other
@@ -177,7 +178,7 @@ pages in a report.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record and company selection are retained across this `1.3.5` update.
+record and company selection are retained across this `1.3.6` update.
 
 ## Validation checklist
 
@@ -191,8 +192,7 @@ record and company selection are retained across this `1.3.5` update.
 - Test missing and long detail values, partner-language date/field formatting and any installed LGR label translations,
   child invoice addresses, oversized logos, forced VAT, all six table styles, multiple companies, long addresses and
   wrapped detail values, and both A4 and Letter paper formats. Confirm company and recipient VAT render as
-  `VAT <number>`
-  without a colon, and test every missing email/VAT combination.
+  `VAT <number>` without a colon, and test every missing email/VAT combination.
 - Confirm the title/details and details/addresses gaps are both 6 mm, and the address-to-email/VAT gap is half the
   configured detail-line height.
 - Verify real single-page and multipage PDFs: the complete header and footer repeat, `Page X of Y` is exact, and invoice
@@ -201,5 +201,5 @@ record and company selection are retained across this `1.3.5` update.
 - Test a mixed-company batch containing LGR and built-in layouts and confirm the whole PDF receives the 110 mm
   reservation. Then test a batch using only built-in layouts and confirm its original margins, title placement, and
   `#informations` block remain unchanged.
-- Import version `1.3.5` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.3.6` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection persists before updating production.
