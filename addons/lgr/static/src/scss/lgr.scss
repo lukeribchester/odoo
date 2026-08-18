@@ -151,7 +151,7 @@
 
     .o_lgr_document_detail_label,
     .o_lgr_document_detail_value {
-      padding: .5mm 3mm .5mm 0;
+      padding: .5mm 2mm .5mm 0;
       vertical-align: top;
       line-height: 1.2;
       white-space: normal;
@@ -159,12 +159,12 @@
     }
 
     .o_lgr_document_detail_label {
-      width: 35%;
+      width: 30%;
       font-weight: 700;
     }
 
     .o_lgr_document_detail_value {
-      width: 65%;
+      width: 70%;
     }
 
     td:last-child {

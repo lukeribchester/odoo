@@ -70,9 +70,10 @@ The Sales helper covers quotations, sales orders, and Sales pro-forma invoices a
 | 7     | Contact                          |
 
 Each detail occupies one label/value row, and the complete row is omitted when its value is unavailable. Long values
-wrap instead of being truncated. The generic layout preview displays its dummy invoice number, invoice date, and due
-date in the same single-column table. Active invoice and quotation previews use their Accounting and Sales helpers and
-real record values.
+wrap instead of being truncated. Labels occupy 30% of the table, values occupy 70%, and a 2 mm right padding on the
+label cell provides the minimum gutter. The generic layout preview displays its dummy invoice number, invoice date, and
+due date in the same single-column table. Active invoice and quotation previews use their Accounting and Sales helpers
+and real record values.
 
 Odoo's original `#informations` nodes remain in their report templates so other inherited views can still target them.
 When LGR receives a details fragment, an LGR-scoped article class hides the original block to prevent duplication. Other
@@ -175,7 +176,7 @@ pages in a report.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record and company selection are retained across this `1.3.3` update.
+record and company selection are retained across this `1.3.4` update.
 
 ## Validation checklist
 
@@ -197,5 +198,5 @@ record and company selection are retained across this `1.3.3` update.
 - Test a mixed-company batch containing LGR and built-in layouts and confirm the whole PDF receives the 110 mm
   reservation. Then test a batch using only built-in layouts and confirm its original margins, title placement, and
   `#informations` block remain unchanged.
-- Import version `1.3.3` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.3.4` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection persists before updating production.

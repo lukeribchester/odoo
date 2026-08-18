@@ -7,8 +7,8 @@
     <template id="preview_document_details">
         <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_document_details_table">
             <colgroup>
-                <col style="width: 35%;"/>
-                <col style="width: 65%;"/>
+                <col style="width: 30%;"/>
+                <col style="width: 70%;"/>
             </colgroup>
             <tbody>
                 <tr>
