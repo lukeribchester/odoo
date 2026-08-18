@@ -21,6 +21,23 @@
             <t t-set="lgr_is_sale_order"
                t-value="o and o._name == 'sale.order'"/>
 
+            <!--
+                Keep Odoo's complete layout_document_title unchanged for the
+                hidden PDF title used by invoice splitting. The visible copy
+                is plain text with a trailing record identifier removed.
+            -->
+            <t t-set="lgr_visible_document_title"
+               t-value="layout_document_title and Markup(layout_document_title).striptags() or False"/>
+            <t t-if="is_preview and lgr_visible_document_title"
+               t-set="lgr_visible_document_title"
+               t-value="lgr_visible_document_title.rsplit(None, 1)[0]"/>
+            <t t-elif="o and 'name' in o and o.name and lgr_visible_document_title and lgr_visible_document_title.endswith(o.name)"
+               t-set="lgr_visible_document_title"
+               t-value="lgr_visible_document_title.removesuffix(o.name).rstrip().removesuffix('#').rstrip()"/>
+            <t t-if="o and o._name == 'account.move' and o.move_type in ['out_receipt', 'in_receipt']"
+               t-set="lgr_visible_document_title">Receipt
+            </t>
+
             <t t-set="lgr_effective_recipient" t-value="lgr_recipient or False"/>
             <t t-if="not lgr_effective_recipient and (lgr_is_outgoing_account_document or lgr_is_incoming_account_document)"
                t-set="lgr_effective_recipient"
@@ -44,8 +61,6 @@
             </t>
 
             <t t-set="lgr_company_vat" t-value="forced_vat or company.vat"/>
-            <t t-set="lgr_kvk"
-               t-value="(company.partner_id.additional_identifiers or {}).get('NL_KVK') or company.partner_id.company_registry"/>
 
             <div t-attf-class="header o_company_#{company.id}_layout o_lgr_layout o_lgr_header">
                 <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_header_table">
@@ -54,9 +69,9 @@
                             <td t-attf-class="align-top o_lgr_header_content {{not company.logo and 'o_lgr_header_content_full' or ''}}">
                                 <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_details_table">
                                     <tbody>
-                                        <tr t-if="layout_document_title">
+                                        <tr t-if="lgr_visible_document_title">
                                             <td colspan="2">
-                                                <h2 class="o_lgr_document_title" t-out="layout_document_title"/>
+                                                <h2 class="o_lgr_document_title" t-out="lgr_visible_document_title"/>
                                             </td>
                                         </tr>
                                         <tr>
@@ -68,22 +83,13 @@
                                                 <div class="o_lgr_company_address"
                                                      t-field="company.partner_id"
                                                      t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
-                                                <div t-if="lgr_kvk" class="o_lgr_detail_line">
-                                                    <span>KvK:</span>
-                                                    <span t-out="lgr_kvk">12345678</span>
-                                                </div>
-                                                <div t-if="lgr_company_vat and lgr_company_vat != '/'"
-                                                     class="o_lgr_detail_line">
-                                                    <span>VAT:</span>
-                                                    <span t-out="lgr_company_vat">NL123456789B01</span>
-                                                </div>
                                                 <div t-if="company.email" class="o_lgr_detail_line">
                                                     <span>Email:</span>
                                                     <span t-field="company.email">info@example.com</span>
                                                 </div>
-                                                <div t-if="company.phone" class="o_lgr_detail_line">
-                                                    <span>Phone:</span>
-                                                    <span t-field="company.phone">+31 20 123 4567</span>
+                                                <div t-if="lgr_company_vat and lgr_company_vat != '/'"
+                                                     class="o_lgr_detail_line o_lgr_company_vat">
+                                                    <span t-out="lgr_company_vat">NL123456789B01</span>
                                                 </div>
                                             </td>
                                             <td t-if="lgr_effective_recipient or address"
@@ -104,7 +110,6 @@
                                                          t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
                                                     <div t-if="lgr_recipient_legal_entity.vat and lgr_recipient_legal_entity.vat != '/'"
                                                          class="o_lgr_detail_line">
-                                                        <span>VAT:</span>
                                                         <span t-field="lgr_recipient_legal_entity.vat">NL987654321B01
                                                         </span>
                                                     </div>

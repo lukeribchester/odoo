@@ -7,11 +7,13 @@ modifying any of Odoo's built-in layouts. Installation does not automatically se
 
 The repeating document header contains:
 
-- An optional context-aware document title at the top left. When omitted, no empty title space is reserved.
-- Structured company details in the left information column: the legal entity name, postal address, KvK number, VAT
-  number, email address, and phone number. Missing optional values and their labels are omitted.
-- Recipient details in the adjacent information column: its heading, legal entity name, postal address, and VAT number
-  when available.
+- An optional context-aware document title at the top left. Odoo's translated document-type wording is preserved while a
+  trailing document identifier and separator are removed. Receipts use the title `Receipt`; when no title remains, no
+  empty title space is reserved.
+- Structured company details in the left information column: the legal entity name, postal address, email address, a
+  one-line gap, and the VAT number. Missing optional values are omitted.
+- Recipient details in the adjacent information column: its heading, legal entity name, postal address, and raw VAT
+  number when available.
 - The company logo at the top right. The information area expands when no logo is configured.
 
 The repeating footer displays `company.report_footer` on the left. Generated PDFs show `Page X of Y` on the right; the
@@ -43,7 +45,8 @@ Accounting's existing shipping information block is preserved.
 
 LGR continues to honor these standard Odoo caller values:
 
-- `layout_document_title`: optional QWeb title content shown at the top left.
+- `layout_document_title`: optional QWeb title content. LGR displays a plain-text copy without a trailing record
+  identifier, while preserving the complete original value for Odoo's hidden PDF title and invoice splitting.
 - `address`: the standard pre-rendered recipient/address fragment and fallback for reports without a record mapping.
 - `information_block`: supplementary report information, including shipping data.
 - `forced_vat`: fiscal-position VAT override used ahead of the company's VAT.
@@ -52,11 +55,9 @@ Future nested report templates may additionally set:
 
 - `lgr_recipient`: a `res.partner` record that overrides the built-in recipient mapping.
 
-Company data is intentionally read from structured `res.company` and
-`res.partner` fields rather than the rich-text **Company Details** editor. KvK is read from
-`additional_identifiers["NL_KVK"]` when present, with
-`company_registry` as the legacy fallback. Company VAT is resolved as
-`forced_vat or company.vat`.
+Company data is intentionally read from structured `res.company` and `res.partner` fields rather than the rich-text
+**Company Details** editor. The header does not display the structured company phone or registration number. Company VAT
+is resolved as `forced_vat or company.vat` and displayed without a prefix after the email and one-line gap.
 
 ## SaaS compatibility and dependencies
 
@@ -67,9 +68,6 @@ Asset paths are explicit because importable modules do not expand asset globs. T
 The module directly depends on `web`, `account`, and `sale`. Those applications must therefore be available in the
 target database. Its short numeric version is series-neutral: Odoo prefixes it with the active server series, avoiding a
 manual manifest-version change for each SaaS upgrade.
-
-Replace the manifest's `Your Company` author placeholder with the owning organization's name before the first production
-import.
 
 ## Package, install, and update on Odoo Online
 
@@ -91,11 +89,13 @@ declare such records. Validate imports and report changes on a non-production da
 
 ## Validation checklist
 
-- Preview and export invoices, credit notes, vendor documents, quotations, and sales orders, including separate invoice
-  and shipping addresses.
-- Test with and without titles, logos, KvK, VAT, email, phone, recipient VAT, and recipient addresses.
-- Cover `NL_KVK`, the legacy registry fallback, fiscal-position VAT overrides, child invoice addresses, long values,
-  oversized logos, and multiple companies.
+- Preview and export invoices, credit notes, receipts, vendor documents, quotations, and sales orders, including draft,
+  cancelled, pro-forma, self-billing, and separate invoice/shipping-address cases. Confirm visible titles retain their
+  translated type wording but contain no record identifier or trailing `#`.
+- Confirm configured company phone and registration numbers are absent. Test missing email and VAT independently; verify
+  address/email/VAT ordering, the one-line company-VAT gap, raw company and recipient VAT values, and fiscal-position
+  VAT overrides.
+- Cover child invoice addresses, long values, oversized logos, and multiple companies.
 - Exercise every built-in table style and both supported paper formats.
 - Verify real single-page and multipage PDFs: the complete header/footer repeats,
   `Page X of Y` is exact, and content does not overlap either section.
