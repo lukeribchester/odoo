@@ -59,7 +59,8 @@ label above invoice Terms and Conditions. Version 1.6.8 restores the normal repo
 the company contact gap to immediately before VAT. Version 1.6.9 consolidates account, reference, and payment-term rows
 beneath a single **Payment Details** heading while preserving their existing field and document-type boundaries. Version
 1.6.10 gives invoice section rows a consistent `#f0f0f0` background across all six document-table styles, and version
-1.6.11 standardizes their font weight at `600` (semi-bold).
+1.6.11 standardizes their font weight at `600` (semi-bold). Version 1.6.12 registers Odoo's bundled Open Sans SemiBold
+face so that this weight is visibly distinct when Open Sans is selected as the company report font.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -114,7 +115,11 @@ desktop and mobile output and takes precedence over each of Odoo's six selectabl
 retains the normal configured report text color for readability and uses `font-weight: 600` (semi-bold) in ordinary and
 grouped or collapsed rows. The weight applies to every section-row cell, including any amount or total cell. Subsection
 rows, product rows, notes, headers, totals outside section rows, and invoice tables rendered through alternate statutory
-templates remain unchanged.
+templates remain unchanged. LGR registers Odoo's existing
+`/web/static/fonts/google/Open_Sans/Open_Sans-SemiBold.ttf` file as the normal `600` face for the internal `Open_Sans`
+font family; it adds no font binary. Select **Open Sans** in **Configure Document Layout** to obtain the exact SemiBold
+face. Other configured font families remain unchanged, and a family without a registered `600` face may map that
+requested weight to another available face.
 
 ### Consolidated payment details
 
@@ -186,9 +191,10 @@ body line height remains unchanged; the shared key/value tables retain their exp
 
 The established hierarchy remains intact: the visible document title is `1.5rem`, the footer is `.8rem`, and Odoo's
 `.small` text remains proportionally smaller than its surrounding content. Semi-bold (`600`) invoice section rows,
-italic note rows, and
-explicit font sizes embedded in rich-text fields continue to apply. Font family selection remains company-configured,
-including Odoo's default Lato. Built-in layouts and reports not rendered through LGR keep their original body size.
+italic note rows, and explicit font sizes embedded in rich-text fields continue to apply. Font family selection remains
+company-configured, including Odoo's default Lato. Selecting Open Sans activates LGR's registration of Odoo's bundled
+SemiBold face at weight `600`; no font family is forced and other company fonts are unchanged. Built-in layouts and
+reports not rendered through LGR keep their original body size.
 
 ## Context-aware document details
 
@@ -382,7 +388,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.11`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.12`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -421,7 +427,10 @@ update. The canonical invoice route requires no new report-action selection.
 - Exercise ordinary and grouped or collapsed invoice section rows in desktop/mobile HTML and A4/Letter PDFs across all
   six Odoo document-table styles. Confirm each `.o_line_section` cell resolves to exactly `#f0f0f0`, retains readable
   normal report text color, and resolves to `font-weight: 600` for both ordinary and grouped or collapsed rows,
-  including their amount or total cells. Confirm subsection and every other invoice-table row type remain unchanged.
+  including their amount or total cells. With Open Sans selected in **Configure Document Layout**, confirm the bundled
+  `Open_Sans-SemiBold.ttf` loads in HTML and PDF output and is visibly distinct from Regular `400` and Bold `700`.
+  Confirm subsection and every other invoice-table row type remain unchanged, then select another company font and
+  confirm that LGR neither forces Open Sans nor changes that font family's available weights.
 - Exercise the option with products, sections, subsections, notes, discounts, taxes, grouped compositions, and collapsed
   prices in desktop/mobile HTML, A4/Letter PDFs, and mixed checked/unchecked batches. Confirm Discount, Taxes, Amount,
   and totals remain visible, and that the option leaves stored quantities and unit prices, calculations, exports, and
@@ -499,7 +508,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.11`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.12`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.11` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.12` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.

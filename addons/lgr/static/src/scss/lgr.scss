@@ -1,3 +1,14 @@
+// Odoo bundles an Open Sans SemiBold file but registers only its Regular and
+// Bold faces for reports. Register the existing file so invoice section rows
+// requesting weight 600 use a genuine SemiBold face when Open Sans is selected
+// in Configure Document Layout.
+@font-face {
+  font-family: 'Open_Sans';
+  src: url('/web/static/fonts/google/Open_Sans/Open_Sans-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
 // LGR's structural report tables deliberately avoid modern layout primitives
 // that wkhtmltopdf does not reliably support.
 .o_lgr_layout {
