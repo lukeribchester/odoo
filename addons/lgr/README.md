@@ -51,7 +51,7 @@ invoice-design surface while retaining Odoo's resolved default invoice architect
 views. Version 1.5.0 established this routing and stable customization point; version 1.5.2 includes the focused body
 behavior provided by the optional Studio-controlled quantity and unit-price setting described below. Version 1.6.0 adds
 the structured payment and bank details described below, and version 1.6.1 aligns those details with the document-detail
-grid.
+grid. Version 1.6.2 shortens the bank-transfer QR instruction while preserving its two-line presentation.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -336,7 +336,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.1`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.2`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -383,6 +383,8 @@ update. The canonical invoice route requires no new report-action selection.
   exactly 6 mm between adjacent payment and bank sections and between the bank section and the first active bank or
   payment-link QR code, with no empty gap when the adjacent section is absent. Test both QR types, both enabled, neither
   enabled, zero residual, long wrapping values, and page breaks near the invoice-line table in HTML and A4/Letter PDFs.
+- Confirm the bank-transfer QR instruction renders `Scan with your` and `banking application` on separate lines, while
+  the payment-link QR wording remains unchanged.
 - Confirm every Accounting, Sales, preview, payment, and bank key/value table uses the shared fixed-layout geometry:
   `20%` label and `80%` value columns, `.875rem` text, `1.2` line height, `.5mm` vertical padding, and a `2mm`
   label/value gutter. Verify all payment and bank values begin at the same horizontal position, including when **Payment
@@ -425,7 +427,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.1`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.2`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.1` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.2` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.

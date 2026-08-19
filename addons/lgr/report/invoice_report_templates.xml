@@ -166,6 +166,12 @@
             </div>
         </xpath>
 
+        <xpath expr="//div[@id='payment_term']/div[@id='qrcode']/div[@id='qrcode_info']/p"
+               position="replace">
+            <p>Scan with your<br/>banking application
+            </p>
+        </xpath>
+
         <xpath expr="//div[@id='payment_term']/div[@id='qrcode']"
                position="attributes">
             <attribute name="class"/>
