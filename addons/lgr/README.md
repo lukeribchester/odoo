@@ -15,9 +15,9 @@ The first page of each document starts with a context-aware masthead inside the 
 - An optional single-column details table 6 mm beneath the title. Accounting, Sales, and the generic layout preview
   provide built-in detail fragments. If a fragment exists without a title, it starts at the top left without an empty
   title row.
-- Structured company details in the left information column: the legal entity name, postal address, a half-line gap,
-  unprefixed email address, and `VAT <number>`. If email is missing, the gap precedes VAT instead. Missing optional
-  values are omitted.
+- Structured company details in the left information column: the legal entity name, postal address, an immediately
+  following unprefixed email address, a half-line gap, and `VAT <number>`. If email is missing, the gap remains between
+  the address and VAT. Missing optional values are omitted.
 - Recipient details in the adjacent information column: its mapped heading, legal entity name, postal address, a
   half-line gap, and `VAT <number>` when available.
 - The company logo at the top right. The information area expands when no logo is configured.
@@ -55,7 +55,8 @@ grid. Version 1.6.2 shortens the bank-transfer QR instruction while preserving i
 uses separate column ratios for the payment and bank tables. Version 1.6.4 moves Terms and Conditions above the payment
 details in the float-aware left column. Version 1.6.5 refines its spacing and the structured payment labels. Version
 1.6.6 aligns regular LGR report-body text with the existing compact document-detail typography. Version 1.6.7 adds a
-label above invoice Terms and Conditions.
+label above invoice Terms and Conditions. Version 1.6.8 restores the normal report text color for that section and moves
+the company contact gap to immediately before VAT.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -105,12 +106,13 @@ and obtain professional advice when necessary.
 ### Structured payment and bank details
 
 The invoice's existing Terms and Conditions (`account.move.narration`) are the first left-side block beneath the invoice
-line table, before fiscal and tax notes and before the payment details. A bold, muted `Note` label appears without a
-colon immediately above the rich-text content, separated from it by exactly 1 mm. The narration content and inheritance
-anchor remain unchanged. An automatic-width, hidden-overflow wrapper keeps the complete block within the space beside
-the right-floating totals; if that space is insufficient, the complete block flows beneath the totals. Non-collapsing
-spacing places the label exactly 12 mm below the invoice table and the narration block 24 mm before the following notes
-or payment section.
+line table, before fiscal and tax notes and before the payment details. A bold `Note` label appears without a colon
+immediately above the rich-text content, separated from it by exactly 1 mm. The label and narration inherit the normal
+configured report text color; deliberate colors embedded in rich-text content remain effective. The narration content
+and inheritance anchor remain unchanged. An automatic-width, hidden-overflow wrapper keeps the complete block within the
+space beside the right-floating totals; if that space is insufficient, the complete block flows beneath the totals.
+Non-collapsing spacing places the label exactly 12 mm below the invoice table and the narration block 24 mm before the
+following notes or payment section.
 
 The LGR invoice body keeps payment information in Odoo's existing left-aligned `#payment_term` area alongside the
 right-floating totals. A common float-aware wrapper uses automatic width and hidden overflow to give both payment tables
@@ -305,8 +307,8 @@ are agreed.
 
 Company data is intentionally read from structured `res.company` and `res.partner` fields rather than the rich-text
 **Company Details** editor. The masthead does not display the structured company phone or registration number. Company
-email is displayed without a prefix. After the postal address, a half-line gap precedes the email, followed immediately
-by `VAT <number>`. If email is unavailable, the gap precedes VAT instead. VAT is resolved as
+email is displayed without a prefix immediately after the postal address. A half-line gap then precedes
+`VAT <number>`. If email is unavailable, the same gap separates the postal address and VAT. VAT is resolved as
 `forced_vat or company.vat`.
 
 ## SaaS compatibility, dependencies, and scope
@@ -358,7 +360,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.7`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.8`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -399,12 +401,13 @@ update. The canonical invoice route requires no new report-action selection.
   prices in desktop/mobile HTML, A4/Letter PDFs, and mixed checked/unchecked batches. Confirm Discount, Taxes, Amount,
   and totals remain visible, and that the option leaves stored quantities and unit prices, calculations, exports, and
   EDI/UBL data unchanged.
-- Confirm Terms and Conditions render once as the first left-side block below the invoice table. Verify the bold, muted
-  `Note` label has no colon, appears exactly 12 mm below the table, and is separated from the narration by exactly 1 mm;
-  confirm the existing 24 mm gap remains below the narration. Test absent, short, multiline, list-based, long, and
-  explicitly formatted rich-text narration beside both short and tall totals, verifying that it does not overlap the
-  totals and flows below them only when needed. When narration is absent, confirm neither the label nor its spacing is
-  emitted and `#payment_term` retains `mt-3`.
+- Confirm Terms and Conditions render once as the first left-side block below the invoice table. Verify the bold `Note`
+  label has no colon, and that both the label and narration match the normal configured report text color while
+  deliberate rich-text colors remain effective. Confirm the label appears exactly 12 mm below the table, is separated
+  from the narration by exactly 1 mm, and retains the existing 24 mm gap below the narration. Test absent, short,
+  multiline, list-based, long, and explicitly formatted rich-text narration beside both short and tall totals, verifying
+  that it does not overlap the totals and flows below them only when needed. When narration is absent, confirm neither
+  the label nor its spacing is emitted and `#payment_term` retains `mt-3`.
 - Confirm the structured payment section displays available **Payment Reference** and **Payment Terms** rows in that
   order, with bold labels and normal-weight values. Verify Payment Terms uses the translated payment-term name, the
   former rich-text payment-term note is absent, and early-payment discount and installment details remain intact.
@@ -445,10 +448,11 @@ update. The canonical invoice route requires no new report-action selection.
   any installed LGR label translations,
   child invoice addresses, oversized logos, forced VAT, all six table styles, multiple companies, long addresses and
   wrapped detail values, and both A4 and Letter paper formats. Confirm company and recipient VAT render as
-  `VAT <number>` without a colon, and test every missing email/VAT combination.
+  `VAT <number>` without a colon, and test every missing email/VAT combination. Confirm company email follows the postal
+  address without a gap and that the half-line gap always precedes a rendered company VAT row.
 - Confirm the title/details and details/addresses gaps are 6 mm, the completed masthead has exactly 24 mm of
-  non-collapsing space before shipping information or the report body, and the address-to-email/VAT gap is half the
-  configured detail-line height.
+  non-collapsing space before shipping information or the report body, and the company email-to-VAT—or address-to-VAT
+  when email is absent—gap is half the configured detail-line height.
 - Verify real single-page and multipage PDFs: the complete masthead appears only on the first page, the footer and
   `Page X of Y` repeat, later pages do not reserve masthead height, and invoice splitting still works. Record any break
   caused by unusually tall masthead content as the accepted wkhtmltopdf limitation.
@@ -458,7 +462,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.7`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.8`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.7` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.8` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.
