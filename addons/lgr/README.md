@@ -57,7 +57,8 @@ details in the float-aware left column. Version 1.6.5 refines its spacing and th
 1.6.6 aligns regular LGR report-body text with the existing compact document-detail typography. Version 1.6.7 adds a
 label above invoice Terms and Conditions. Version 1.6.8 restores the normal report text color for that section and moves
 the company contact gap to immediately before VAT. Version 1.6.9 consolidates account, reference, and payment-term rows
-beneath a single **Payment Details** heading while preserving their existing field and document-type boundaries.
+beneath a single **Payment Details** heading while preserving their existing field and document-type boundaries. Version
+1.6.10 gives invoice section rows a consistent `#f0f0f0` background across all six document-table styles.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -103,6 +104,14 @@ relevant. Review each intended use against the
 official [Belastingdienst invoice requirements](https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/zakelijk/btw/administratie_bijhouden/facturen_maken/factuureisen/)
 and [European Commission VAT invoicing guidance](https://taxation-customs.ec.europa.eu/taxation/vat/vat-businesses/invoicing_en),
 and obtain professional advice when necessary.
+
+### Invoice section-row styling
+
+Invoice line-table rows carrying Odoo's `.o_line_section` class use a consistent `#f0f0f0` background when rendered
+through `lgr.report_invoice_document`. The LGR-scoped rule applies to ordinary and grouped or collapsed section rows in
+desktop and mobile output and takes precedence over each of Odoo's six selectable document-table styles. Section text
+retains the normal configured report text color for readability. Subsection rows, product rows, notes, headers, totals,
+and invoice tables rendered through alternate statutory templates remain unchanged.
 
 ### Consolidated payment details
 
@@ -369,7 +378,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.9`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.10`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -405,6 +414,9 @@ update. The canonical invoice route requires no new report-action selection.
   `x_studio_hide_quantity` removes the Quantity and Unit Price headers and every corresponding normal, grouped,
   collapsed, and converted-UoM cell without leaving an empty column. Confirm an unchecked or missing field preserves
   both standard columns.
+- Exercise ordinary and grouped or collapsed invoice section rows in desktop/mobile HTML and A4/Letter PDFs across all
+  six Odoo document-table styles. Confirm each `.o_line_section` cell resolves to exactly `#f0f0f0`, retains readable
+  normal report text color, and leaves subsection and every other invoice-table row type unchanged.
 - Exercise the option with products, sections, subsections, notes, discounts, taxes, grouped compositions, and collapsed
   prices in desktop/mobile HTML, A4/Letter PDFs, and mixed checked/unchecked batches. Confirm Discount, Taxes, Amount,
   and totals remain visible, and that the option leaves stored quantities and unit prices, calculations, exports, and
@@ -482,7 +494,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.9`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.10`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.9` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.10` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.

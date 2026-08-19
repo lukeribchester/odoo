@@ -8,6 +8,10 @@
               name="LGR Invoice Document"
               inherit_id="account.report_invoice_document"
               primary="True">
+        <xpath expr="//table[@name='invoice_line_table']" position="attributes">
+            <attribute name="class" add="o_lgr_invoice_line_table" separator=" "/>
+        </xpath>
+
         <xpath expr="//table[@name='invoice_line_table']" position="before">
             <t t-set="lgr_hide_quantity"
                t-value="'x_studio_hide_quantity' in o and o.x_studio_hide_quantity"/>

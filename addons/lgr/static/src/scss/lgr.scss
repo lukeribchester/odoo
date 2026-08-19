@@ -212,6 +212,15 @@
   }
 }
 
+// Keep LGR invoice section rows consistent across every Odoo report-table
+// theme. The additional specificity and !important declarations override the
+// company-generated Striped theme without affecting subsections or other
+// report tables.
+.article table.table.o_main_table.o_lgr_invoice_line_table tbody tr.o_line_section > td {
+  background-color: #f0f0f0 !important;
+  color: inherit !important;
+}
+
 .o_lgr_footer {
   font-size: .8rem;
   line-height: 1.2;
