@@ -48,8 +48,8 @@ invoice splitting even though the cleaned visible title is rendered in the first
 
 `lgr.report_invoice_document` is a primary inheritance of `account.report_invoice_document`. It provides an independent
 invoice-design surface while retaining Odoo's resolved default invoice architecture, including compatible extension
-views. Version 1.5.0 established this routing and stable customization point; version 1.5.1 adds the first focused body
-behavior through the optional Studio-controlled quantity setting described below.
+views. Version 1.5.0 established this routing and stable customization point; version 1.5.2 includes the focused body
+behavior provided by the optional Studio-controlled quantity and unit-price setting described below.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -73,20 +73,28 @@ design changes must be validated with a real invoice preview or rendered report.
 attachments are not rewritten by the module update; use a new invoice or another normal Odoo regeneration path when
 validating the new route.
 
-### Studio-controlled quantity visibility
+### Studio-controlled quantity and unit-price visibility
 
-The optional Studio-owned Boolean `account.move.x_studio_hide_quantity` controls the Quantity column for any document
-rendered through `lgr.report_invoice_document`. When the field exists and is checked, LGR omits the Quantity header and
-all normal, grouped, and collapsed-line quantity cells from both HTML and generated PDF output. When the field is false
-or absent, the standard Quantity column remains visible. The report applies no customer/vendor or document-type filter;
-Studio continues to own the checkbox's placement and visibility.
+The optional Studio-owned Boolean `account.move.x_studio_hide_quantity` controls the Quantity and Unit Price columns for
+any document rendered through `lgr.report_invoice_document`. When the field exists and is checked, LGR omits both
+headers and all normal, grouped, and collapsed-line cells for those columns from HTML and generated PDF output. When the
+field is false or absent, both standard columns remain visible. The report applies no customer/vendor or document-type
+filter; Studio continues to own the checkbox's placement and visibility. Its existing Studio label remains **Hide
+quantities**, even though the checked state now hides both Quantity and Unit Price.
 
-This is a visual report setting only. It does not change stored line quantities, calculations, taxes, totals, exports,
-or EDI/UBL data. LGR does not define the custom field and adds no Studio dependency, model field, or access rule. Odoo's
-generic **Configure Document Layout** preview uses a separate invoice-preview template and is therefore not
-authoritative for this invoice-body option; validate it with a real invoice HTML preview or newly rendered PDF.
-Previously generated PDF attachments remain unchanged until Odoo regenerates or replaces them through its normal
-workflow.
+This is a visual report setting only. It does not change stored quantities or unit prices, calculations, exports, or
+EDI/UBL data. The Discount, Taxes, and Amount columns and all totals remain visible. LGR does not define the custom
+field and adds no Studio dependency, model field, or access rule. Odoo's generic **Configure Document Layout** preview
+uses a separate invoice-preview template and is therefore not authoritative for this invoice-body option; validate it
+with a real invoice HTML preview or newly rendered PDF. Previously generated PDF attachments remain unchanged until Odoo
+regenerates or replaces them through its normal workflow.
+
+Hiding these columns may make a full VAT invoice unsuitable for its applicable invoicing requirements. Dutch and EU
+guidance generally requires the quantity or extent of supplied goods or services and the applicable unit price where
+relevant. Review each intended use against the
+official [Belastingdienst invoice requirements](https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/zakelijk/btw/administratie_bijhouden/facturen_maken/factuureisen/)
+and [European Commission VAT invoicing guidance](https://taxation-customs.ec.europa.eu/taxation/vat/vat-businesses/invoicing_en),
+and obtain professional advice when necessary.
 
 ## Context-aware document details
 
@@ -275,7 +283,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.5.1`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.5.2`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -285,8 +293,8 @@ update. The canonical invoice route requires no new report-action selection.
   duplicated
   `#informations` block.
 - Confirm the combined `lgr.report_invoice_document` architecture matches Odoo's resolved default invoice document apart
-  from its independent template identity, the optional quantity-column behavior, and the existing LGR Accounting-details
-  adapter.
+  from its independent template identity, the optional Quantity/Unit Price visibility behavior, and the existing LGR
+  Accounting-details adapter.
 - Confirm `lgr.report_invoice_use_lgr_document` changes exactly one `t-call`: the standard
   `account.report_invoice_document` branch in `account.report_invoice`. Verify that the branch condition, partner
   language, payment-enabled wrapper, and every localization-owned dispatcher branch remain unchanged.
@@ -304,11 +312,13 @@ update. The canonical invoice route requires no new report-action selection.
   body changes with a real invoice preview and PDF rather than treating the generic layout preview as an invoice-body
   preview.
 - On invoices, credit notes, receipts, and representative vendor documents routed through LGR, confirm a checked
-  `x_studio_hide_quantity` removes the Quantity header and every normal, grouped, collapsed, and converted-UoM quantity
-  cell without leaving an empty column. Confirm an unchecked or missing field preserves the standard column.
-- Exercise the quantity option with products, sections, subsections, notes, discounts, taxes, grouped compositions, and
-  collapsed prices in desktop/mobile HTML, A4/Letter PDFs, and mixed checked/unchecked batches. Confirm it changes only
-  visual report output and leaves stored quantities, calculations, totals, exports, and EDI/UBL data unchanged.
+  `x_studio_hide_quantity` removes the Quantity and Unit Price headers and every corresponding normal, grouped,
+  collapsed, and converted-UoM cell without leaving an empty column. Confirm an unchecked or missing field preserves
+  both standard columns.
+- Exercise the option with products, sections, subsections, notes, discounts, taxes, grouped compositions, and collapsed
+  prices in desktop/mobile HTML, A4/Letter PDFs, and mixed checked/unchecked batches. Confirm Discount, Taxes, Amount,
+  and totals remain visible, and that the option leaves stored quantities and unit prices, calculations, exports, and
+  EDI/UBL data unchanged.
 - Preview and export invoices, credit notes, receipts, vendor documents, quotations, orders, Sales pro-formas, and the
   supported draft, cancelled, posted, self-billing, and separate invoice/shipping-address cases.
 - Confirm each visible title retains its translated document-type wording without the record identifier or trailing `#`,
@@ -341,7 +351,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.5.1`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.5.2`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.5.1` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.5.2` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.
