@@ -60,7 +60,8 @@ the company contact gap to immediately before VAT. Version 1.6.9 consolidates ac
 beneath a single **Payment Details** heading while preserving their existing field and document-type boundaries. Version
 1.6.10 gives invoice section rows a consistent `#f0f0f0` background across all six document-table styles, and version
 1.6.11 standardizes their font weight at `600` (semi-bold). Version 1.6.12 registers Odoo's bundled Open Sans SemiBold
-face so that this weight is visibly distinct when Open Sans is selected as the company report font.
+face so that this weight is visibly distinct when Open Sans is selected as the company report font. Version 1.6.13
+aligns the compact line height and visible content gaps of the **Note** and **Payment Details** headings.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -125,18 +126,19 @@ requested weight to another available face.
 
 The invoice's existing Terms and Conditions (`account.move.narration`) are the first left-side block beneath the invoice
 line table, before fiscal and tax notes and before the payment details. A bold `Note` label appears without a colon
-immediately above the rich-text content, separated from it by exactly 1 mm. The label and narration inherit the normal
-configured report text color; deliberate colors embedded in rich-text content remain effective. The narration content
-and inheritance anchor remain unchanged. An automatic-width, hidden-overflow wrapper keeps the complete block within the
-space beside the right-floating totals; if that space is insufficient, the complete block flows beneath the totals.
-Non-collapsing spacing places the label exactly 12 mm below the invoice table and the narration block 24 mm before the
-following notes or payment section.
+immediately above the rich-text content. The label uses `.875rem` text, `1.2` line height, and a `2mm` bottom margin.
+The label and narration inherit the normal configured report text color; deliberate colors embedded in rich-text content
+remain effective. The narration content and inheritance anchor remain unchanged. An automatic-width, hidden-overflow
+wrapper keeps the complete block within the space beside the right-floating totals; if that space is insufficient, the
+complete block flows beneath the totals. Non-collapsing spacing places the label exactly 12 mm below the invoice table
+and the narration block 24 mm before the following notes or payment section.
 
 The LGR invoice body keeps payment information in Odoo's existing left-aligned `#payment_term` area alongside the
 right-floating totals. An automatic-width, hidden-overflow wrapper provides one available width without introducing
 another float. When a visible payment reference or payment term exists, a bold **Payment Details** heading appears in
-the normal configured report text color. The heading uses `.875rem` text and `1.2` line height, with exactly 1 mm before
-the single structured table. Available rows render in this order:
+the normal configured report text color. The heading uses `.875rem` text and `1.2` line height, with a `1.5mm` bottom
+margin before the single structured table. Together with the first row's existing `.5mm` top cell padding, this gives
+approximately `2mm` from the heading to the first visible row text. Available rows render in this order:
 
 1. **Name** `account.move.company_id.name`
 2. **IBAN** `account.move.partner_bank_id.account_number`
@@ -388,7 +390,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.12`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.13`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -438,14 +440,16 @@ update. The canonical invoice route requires no new report-action selection.
 - Confirm Terms and Conditions render once as the first left-side block below the invoice table. Verify the bold `Note`
   label has no colon, and that both the label and narration match the normal configured report text color while
   deliberate rich-text colors remain effective. Confirm the label appears exactly 12 mm below the table, is separated
-  from the narration by exactly 1 mm, and retains the existing 24 mm gap below the narration. Test absent, short,
+  from the narration by its `2mm` bottom margin, uses `.875rem` text and `1.2` line height, and retains the existing 24
+  mm gap below the narration. Test absent, short,
   multiline, list-based, long, and explicitly formatted rich-text narration beside both short and tall totals, verifying
   that it does not overlap the totals and flows below them only when needed. When narration is absent, confirm neither
   the label nor its spacing is emitted and `#payment_term` retains `mt-3`.
-- Confirm a bold **Payment Details** heading appears exactly 1 mm above the consolidated table when Reference or Terms
-  is visible. Verify the heading uses `.875rem`, `1.2` line height, and the normal configured report color, and the
-  available rows appear in exact **Name**, **IBAN**, **BIC/SWIFT**, **Reference**, **Terms** order with bold labels and
-  normal-weight values.
+- Confirm a bold **Payment Details** heading uses a `1.5mm` bottom margin above the consolidated table when Reference or
+  Terms is visible. Verify the heading uses `.875rem`, `1.2` line height, and the normal configured report color; with
+  the unchanged `.5mm` top padding in the first table row, confirm approximately `2mm` to the first visible row text.
+  Confirm the available rows appear in exact **Name**, **IBAN**, **BIC/SWIFT**, **Reference**, **Terms** order with bold
+  labels and normal-weight values.
 - Validate bank + BIC + Reference + Terms, bank without BIC, Reference without bank, Terms only, Reference without
   Terms, and neither value. Confirm missing rows collapse cleanly; a reference-only or terms-only record retains its
   heading and table; and a record with neither emits no heading, table, or empty section spacing.
@@ -508,7 +512,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.12`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.13`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.12` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.13` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.
