@@ -53,7 +53,8 @@ behavior provided by the optional Studio-controlled quantity and unit-price sett
 the structured payment and bank details described below, and version 1.6.1 aligns those details with the document-detail
 grid. Version 1.6.2 shortens the bank-transfer QR instruction while preserving its two-line presentation. Version 1.6.3
 uses separate column ratios for the payment and bank tables. Version 1.6.4 moves Terms and Conditions above the payment
-details in the float-aware left column. Version 1.6.5 refines its spacing and the structured payment labels.
+details in the float-aware left column. Version 1.6.5 refines its spacing and the structured payment labels. Version
+1.6.6 aligns regular LGR report-body text with the existing compact document-detail typography.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -155,6 +156,18 @@ through its normal workflow.
 Country or Studio views that inject additional visible wording inside Odoo's original payment-communication paragraph
 must extend the LGR structured sections explicitly. The standard Dutch SaaS 19.3 invoice route adds no such wording;
 country routes that select a separate statutory primary invoice template continue to bypass LGR unchanged.
+
+## Typography
+
+Every report article rendered through the LGR external layout uses `.875rem` as its regular body-text size. This aligns
+invoice and Sales document bodies, line tables, totals, Terms and Conditions, fiscal and legal notes, shipping
+information, QR instructions, and payment details with the existing compact document-detail typography. Odoo's normal
+body line height remains unchanged; the shared key/value tables retain their explicit `1.2` line height.
+
+The established hierarchy remains intact: the visible document title is `1.5rem`, the footer is `.8rem`, and Odoo's
+`.small` text remains proportionally smaller than its surrounding content. Bold section rows, italic note rows, and
+explicit font sizes embedded in rich-text fields continue to apply. Font family selection remains company-configured,
+including Odoo's default Lato. Built-in layouts and reports not rendered through LGR keep their original body size.
 
 ## Context-aware document details
 
@@ -343,7 +356,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.5`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.6`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -352,6 +365,10 @@ update. The canonical invoice route requires no new report-action selection.
   title, details, then company/recipient addresses, with the logo at the top right, an 11 mm top inset, and no
   duplicated
   `#informations` block.
+- Confirm regular content in every LGR article resolves to `.875rem`, including invoice and Sales bodies, line tables,
+  totals, Terms and Conditions, fiscal and legal notes, shipping information, QR instructions, and payment details.
+  Verify the title remains `1.5rem`, the footer remains `.8rem`, key/value tables retain `1.2` line height, `.small`
+  content remains proportionally smaller, and configured company font families continue to apply.
 - Confirm the combined `lgr.report_invoice_document` architecture matches Odoo's resolved default invoice document apart
   from its independent template identity, the optional Quantity/Unit Price visibility behavior, and the existing LGR
   Accounting-details adapter.
@@ -437,7 +454,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.5`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.6`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.5` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.6` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.
