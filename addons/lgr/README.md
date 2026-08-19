@@ -49,7 +49,8 @@ invoice splitting even though the cleaned visible title is rendered in the first
 `lgr.report_invoice_document` is a primary inheritance of `account.report_invoice_document`. It provides an independent
 invoice-design surface while retaining Odoo's resolved default invoice architecture, including compatible extension
 views. Version 1.5.0 established this routing and stable customization point; version 1.5.2 includes the focused body
-behavior provided by the optional Studio-controlled quantity and unit-price setting described below.
+behavior provided by the optional Studio-controlled quantity and unit-price setting described below. Version 1.6.0 adds
+the structured payment and bank details described below.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -95,6 +96,40 @@ relevant. Review each intended use against the
 official [Belastingdienst invoice requirements](https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/zakelijk/btw/administratie_bijhouden/facturen_maken/factuureisen/)
 and [European Commission VAT invoicing guidance](https://taxation-customs.ec.europa.eu/taxation/vat/vat-businesses/invoicing_en),
 and obtain professional advice when necessary.
+
+### Structured payment and bank details
+
+The LGR invoice body keeps payment information in Odoo's existing left-aligned `#payment_term` area beneath the invoice
+line table and alongside the right-floating totals. The first structured section renders available values in this order:
+
+1. **Payment Reference:** `account.move.payment_reference`
+2. **Payment Terms:** the translated `account.payment.term.name`
+3. Odoo's existing early-payment discount and installment details
+
+The Payment Terms value deliberately uses the concise payment-term name rather than the editable rich-text **Description
+on the Invoice** (`account.payment.term.note`). That rich-text note is no longer printed in this block; the invoice's
+separate narration and legal or fiscal-position notes remain unchanged.
+
+When Odoo's existing bank condition is met, a second section renders:
+
+1. **Name:** the invoice company's name
+2. **IBAN:** the selected partner-bank account number
+3. **BIC/SWIFT:** the selected bank account's associated BIC/SWIFT code, when available
+
+The bank section retains Odoo's existing scope: it is shown only for an outgoing invoice or incoming refund that has
+both a payment reference and a selected partner bank. All labels are bold and values use normal weight. A non-collapsing
+6 mm gap separates the payment and bank sections, and another 6 mm gap separates the bank section from the first active
+bank or payment-link QR-code section. These gaps are omitted when the adjacent section is absent. Each section stays
+left aligned, permits long values to wrap, and uses best-effort page-break avoidance for wkhtmltopdf.
+
+This is presentation-only behavior. It does not change payment terms, references, bank records, calculations, payment
+processing, or EDI output. The new literal labels are English until corresponding entries are added to an LGR
+translation catalog. Previously generated PDF attachments remain unchanged until Odoo regenerates or replaces them
+through its normal workflow.
+
+Country or Studio views that inject additional visible wording inside Odoo's original payment-communication paragraph
+must extend the LGR structured sections explicitly. The standard Dutch SaaS 19.3 invoice route adds no such wording;
+country routes that select a separate statutory primary invoice template continue to bypass LGR unchanged.
 
 ## Context-aware document details
 
@@ -283,7 +318,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.5.2`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.0`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -299,7 +334,8 @@ update. The canonical invoice route requires no new report-action selection.
   `account.report_invoice_document` branch in `account.report_invoice`. Verify that the branch condition, partner
   language, payment-enabled wrapper, and every localization-owned dispatcher branch remain unchanged.
 - Render the same records through Odoo's canonical **Invoice PDF** action before and after the update. Compare invoice
-  lines, sections and notes, discounts, taxes, totals, payment entries, QR behavior, payment communication, terms,
+  lines, sections and notes, discounts, taxes, totals, payment entries, QR behavior, structured payment and bank
+  details,
   fiscal-position data, attachment generation, portal output, pro-forma fallback, and multi-record splitting. Confirm
   the default action and specialized Accounting rendering context are retained and no second invoice report action was
   created. Use newly created invoices for this comparison, and separately confirm that an already generated PDF remains
@@ -319,6 +355,18 @@ update. The canonical invoice route requires no new report-action selection.
   prices in desktop/mobile HTML, A4/Letter PDFs, and mixed checked/unchecked batches. Confirm Discount, Taxes, Amount,
   and totals remain visible, and that the option leaves stored quantities and unit prices, calculations, exports, and
   EDI/UBL data unchanged.
+- Confirm the structured payment section displays available **Payment Reference:** and **Payment Terms:** rows in that
+  order, with bold labels and normal-weight values. Verify Payment Terms uses the translated payment-term name, the
+  former rich-text payment-term note is absent, and early-payment discount and installment details remain intact.
+- On outgoing invoices and incoming refunds, confirm the bank section displays **Name:**, **IBAN:**, and an optional
+  **BIC/SWIFT:** row in that order when both a payment reference and partner bank are present. Verify representative
+  vendor documents and records missing either prerequisite do not acquire the bank section.
+- Test payment reference, payment term, bank account, and BIC independently present and missing. Confirm there is
+  exactly 6 mm between adjacent payment and bank sections and between the bank section and the first active bank or
+  payment-link QR code, with no empty gap when the adjacent section is absent. Test both QR types, both enabled, neither
+  enabled, zero residual, long wrapping values, and page breaks near the invoice-line table in HTML and A4/Letter PDFs.
+- Confirm invoice narration, fiscal and legal notes, totals, payment calculations, stored payment and bank data, and EDI
+  output remain unchanged by the structured presentation.
 - Preview and export invoices, credit notes, receipts, vendor documents, quotations, orders, Sales pro-formas, and the
   supported draft, cancelled, posted, self-billing, and separate invoice/shipping-address cases.
 - Confirm each visible title retains its translated document-type wording without the record identifier or trailing `#`,
@@ -351,7 +399,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.5.2`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.0`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.5.2` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.0` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.

@@ -232,3 +232,39 @@
     margin-bottom: 0;
   }
 }
+
+.o_lgr_payment_summary,
+.o_lgr_bank_details {
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  line-height: 1.25;
+  white-space: normal;
+  word-wrap: break-word;
+  page-break-inside: avoid;
+}
+
+.o_lgr_payment_summary + .o_lgr_bank_details {
+  padding-top: 6mm;
+}
+
+.o_lgr_payment_row {
+  margin: 0;
+  padding: 0;
+  line-height: 1.25;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.o_lgr_payment_label {
+  margin-right: .35em;
+  font-weight: 700;
+}
+
+.o_lgr_payment_value {
+  font-weight: 400;
+}
+
+.o_lgr_qr_after_bank {
+  padding-top: 6mm;
+}
