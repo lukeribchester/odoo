@@ -99,16 +99,18 @@
                position="after">
             <t t-set="lgr_show_payment_reference"
                t-value="o.move_type in ('out_invoice', 'in_refund') and o.payment_reference"/>
-            <t t-set="lgr_show_payment_summary"
-               t-value="lgr_show_payment_reference or o.invoice_payment_term_id"/>
             <t t-set="lgr_show_bank_details"
                t-value="lgr_show_payment_reference and o.partner_bank_id"/>
+            <t t-set="lgr_show_payment_terms"
+               t-value="o.invoice_payment_term_id"/>
+            <t t-set="lgr_show_payment_details"
+               t-value="lgr_show_payment_reference or lgr_show_payment_terms"/>
         </xpath>
 
         <xpath expr="//span[@id='payment_terms_note_id']/parent::div"
                position="attributes">
             <attribute name="class">o_lgr_payment_groups</attribute>
-            <attribute name="t-if">lgr_show_payment_summary</attribute>
+            <attribute name="t-if">lgr_show_payment_details</attribute>
         </xpath>
 
         <xpath expr="//span[@id='payment_terms_note_id']/following-sibling::br[1]"
@@ -119,47 +121,15 @@
 
         <xpath expr="//span[@id='payment_terms_note_id']"
                position="replace">
-            <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_key_value_table o_lgr_payment_summary avoid-page-break-inside">
-                <colgroup>
-                    <col style="width: 25%;"/>
-                    <col style="width: 75%;"/>
-                </colgroup>
-                <tbody>
-                    <tr t-if="lgr_show_payment_reference">
-                        <td class="o_lgr_key_value_label">
-                            <strong>Payment Reference</strong>
-                        </td>
-                        <td class="o_lgr_key_value_value">
-                            <p name="payment_communication" class="m-0">
-                                <span t-field="o.payment_reference">INV/2023/00001</span>
-                            </p>
-                        </td>
-                    </tr>
-                    <tr t-if="o.invoice_payment_term_id">
-                        <td class="o_lgr_key_value_label">
-                            <strong>
-                                <span id="payment_terms_note_id" name="payment_term">Payment Terms</span>
-                            </strong>
-                        </td>
-                        <td class="o_lgr_key_value_value">
-                            <span t-field="o.invoice_payment_term_id.name">30 Days</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </xpath>
-
-        <xpath expr="//div[@id='payment_term']/div[.//span[@id='payment_terms_note_id']]"
-               position="inside">
-            <div t-if="lgr_show_bank_details"
-                 class="o_lgr_bank_details avoid-page-break-inside">
-                <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_key_value_table o_lgr_bank_details_table">
+            <div class="o_lgr_payment_details avoid-page-break-inside">
+                <div class="o_lgr_payment_heading">Payment Details</div>
+                <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_key_value_table o_lgr_payment_details_table">
                     <colgroup>
                         <col style="width: 15%;"/>
                         <col style="width: 85%;"/>
                     </colgroup>
                     <tbody>
-                        <tr>
+                        <tr t-if="lgr_show_bank_details">
                             <td class="o_lgr_key_value_label">
                                 <strong>Name</strong>
                             </td>
@@ -167,7 +137,7 @@
                                 <span t-field="o.company_id.name">My Company</span>
                             </td>
                         </tr>
-                        <tr>
+                        <tr t-if="lgr_show_bank_details">
                             <td class="o_lgr_key_value_label">
                                 <strong>IBAN</strong>
                             </td>
@@ -175,12 +145,32 @@
                                 <span t-field="o.partner_bank_id.account_number">NL91ABNA0417164300</span>
                             </td>
                         </tr>
-                        <tr t-if="o.partner_bank_id.bank_bic">
+                        <tr t-if="lgr_show_bank_details and o.partner_bank_id.bank_bic">
                             <td class="o_lgr_key_value_label">
                                 <strong>BIC/SWIFT</strong>
                             </td>
                             <td class="o_lgr_key_value_value">
                                 <span t-field="o.partner_bank_id.bank_bic">ABNANL2A</span>
+                            </td>
+                        </tr>
+                        <tr t-if="lgr_show_payment_reference">
+                            <td class="o_lgr_key_value_label">
+                                <strong>Reference</strong>
+                            </td>
+                            <td class="o_lgr_key_value_value">
+                                <p name="payment_communication" class="m-0">
+                                    <span t-field="o.payment_reference">INV/2023/00001</span>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr t-if="lgr_show_payment_terms">
+                            <td class="o_lgr_key_value_label">
+                                <strong>
+                                    <span id="payment_terms_note_id" name="payment_term">Terms</span>
+                                </strong>
+                            </td>
+                            <td class="o_lgr_key_value_value">
+                                <span t-field="o.invoice_payment_term_id.name">30 Days</span>
                             </td>
                         </tr>
                     </tbody>
@@ -198,7 +188,7 @@
                position="attributes">
             <attribute name="class"/>
             <attribute name="t-attf-class">d-flex mb-3
-                avoid-page-break-inside#{' o_lgr_qr_after_bank' if lgr_show_bank_details else ''}
+                avoid-page-break-inside#{' o_lgr_qr_after_payment_details' if lgr_show_payment_details else ''}
             </attribute>
         </xpath>
 
@@ -206,7 +196,7 @@
                position="attributes">
             <attribute name="class"/>
             <attribute name="t-attf-class">d-flex mb-3
-                avoid-page-break-inside#{' o_lgr_qr_after_bank' if lgr_show_bank_details and not show_qr else ''}
+                avoid-page-break-inside#{' o_lgr_qr_after_payment_details' if lgr_show_payment_details and not show_qr else ''}
             </attribute>
         </xpath>
     </template>
