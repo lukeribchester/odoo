@@ -54,7 +54,8 @@ the structured payment and bank details described below, and version 1.6.1 align
 grid. Version 1.6.2 shortens the bank-transfer QR instruction while preserving its two-line presentation. Version 1.6.3
 uses separate column ratios for the payment and bank tables. Version 1.6.4 moves Terms and Conditions above the payment
 details in the float-aware left column. Version 1.6.5 refines its spacing and the structured payment labels. Version
-1.6.6 aligns regular LGR report-body text with the existing compact document-detail typography.
+1.6.6 aligns regular LGR report-body text with the existing compact document-detail typography. Version 1.6.7 adds a
+label above invoice Terms and Conditions.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -104,11 +105,12 @@ and obtain professional advice when necessary.
 ### Structured payment and bank details
 
 The invoice's existing Terms and Conditions (`account.move.narration`) are the first left-side block beneath the invoice
-line table, before fiscal and tax notes and before the payment details. Their content and inheritance anchor remain
-unchanged. An automatic-width, hidden-overflow wrapper keeps the rich-text block within the space beside the
-right-floating totals; if that space is insufficient, the complete block flows beneath the totals. Non-collapsing
-spacing places the content exactly 12 mm below the invoice table and 24 mm before the following notes or payment
-section.
+line table, before fiscal and tax notes and before the payment details. A bold, muted `Note` label appears without a
+colon immediately above the rich-text content, separated from it by exactly 1 mm. The narration content and inheritance
+anchor remain unchanged. An automatic-width, hidden-overflow wrapper keeps the complete block within the space beside
+the right-floating totals; if that space is insufficient, the complete block flows beneath the totals. Non-collapsing
+spacing places the label exactly 12 mm below the invoice table and the narration block 24 mm before the following notes
+or payment section.
 
 The LGR invoice body keeps payment information in Odoo's existing left-aligned `#payment_term` area alongside the
 right-floating totals. A common float-aware wrapper uses automatic width and hidden overflow to give both payment tables
@@ -356,7 +358,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.6`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.7`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -397,10 +399,12 @@ update. The canonical invoice route requires no new report-action selection.
   prices in desktop/mobile HTML, A4/Letter PDFs, and mixed checked/unchecked batches. Confirm Discount, Taxes, Amount,
   and totals remain visible, and that the option leaves stored quantities and unit prices, calculations, exports, and
   EDI/UBL data unchanged.
-- Confirm Terms and Conditions render once as the first left-side block below the invoice table, with exactly 12 mm
-  above and 24 mm below, followed by fiscal and tax notes, payment details, bank details, and QR sections. Test absent,
-  short, multiline, long, and rich-text narration beside both short and tall totals, verifying that it does not overlap
-  the totals and flows below them only when needed. When narration is absent, confirm `#payment_term` retains `mt-3`.
+- Confirm Terms and Conditions render once as the first left-side block below the invoice table. Verify the bold, muted
+  `Note` label has no colon, appears exactly 12 mm below the table, and is separated from the narration by exactly 1 mm;
+  confirm the existing 24 mm gap remains below the narration. Test absent, short, multiline, list-based, long, and
+  explicitly formatted rich-text narration beside both short and tall totals, verifying that it does not overlap the
+  totals and flows below them only when needed. When narration is absent, confirm neither the label nor its spacing is
+  emitted and `#payment_term` retains `mt-3`.
 - Confirm the structured payment section displays available **Payment Reference** and **Payment Terms** rows in that
   order, with bold labels and normal-weight values. Verify Payment Terms uses the translated payment-term name, the
   former rich-text payment-term note is absent, and early-payment discount and installment details remain intact.
@@ -454,7 +458,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.6`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.7`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.6` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.7` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.

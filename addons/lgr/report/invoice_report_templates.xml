@@ -84,6 +84,11 @@
             <attribute name="class">text-muted o_lgr_terms_conditions</attribute>
         </xpath>
 
+        <xpath expr="//div[@id='payment_term']/div[@name='comment']/span[@t-field='o.narration']"
+               position="before">
+            <div class="o_lgr_terms_label">Note</div>
+        </xpath>
+
         <xpath expr="//div[@id='payment_term']"
                position="attributes">
             <attribute name="class"/>

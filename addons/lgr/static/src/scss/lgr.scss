@@ -269,6 +269,11 @@
   white-space: normal;
   word-wrap: break-word;
 
+  .o_lgr_terms_label {
+    margin: 0 0 1mm;
+    font-weight: 700;
+  }
+
   > :first-child,
   > span > :first-child {
     margin-top: 0;
