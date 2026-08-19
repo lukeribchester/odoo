@@ -61,7 +61,9 @@ beneath a single **Payment Details** heading while preserving their existing fie
 1.6.10 gives invoice section rows a consistent `#f0f0f0` background across all six document-table styles, and version
 1.6.11 standardizes their font weight at `600` (semi-bold). Version 1.6.12 registers Odoo's bundled Open Sans SemiBold
 face so that this weight is visibly distinct when Open Sans is selected as the company report font. Version 1.6.13
-aligns the compact line height and visible content gaps of the **Note** and **Payment Details** headings.
+aligns the compact line height and visible content gaps of the **Note** and **Payment Details** headings. Version 1.6.14
+changes the bank-transfer QR instruction to three lines: `Scan the payment`, `details with your`, and
+`banking application`; the payment-link QR wording remains unchanged.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -390,7 +392,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.13`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.14`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -466,8 +468,8 @@ update. The canonical invoice route requires no new report-action selection.
   first active bank or payment-link QR whenever Payment Details exists, the gap is not duplicated, and no gap is emitted
   when Payment Details is absent. Also test long wrapping values and page breaks near the invoice-line table in HTML and
   A4/Letter PDFs.
-- Confirm the bank-transfer QR instruction renders `Scan with your` and `banking application` on separate lines, while
-  the payment-link QR wording remains unchanged.
+- Confirm the bank-transfer QR instruction renders exactly three lines—`Scan the payment`, `details with your`, and
+  `banking application`—while the payment-link QR wording remains unchanged.
 - Confirm Accounting, Sales, and preview key/value tables remain `20%` label / `80%` value and the consolidated Payment
   Details table uses `15% / 85%`. Verify every table retains `.875rem` text, `1.2` line height, `.5mm` vertical padding,
   and the `2mm` label/value gutter.
@@ -512,7 +514,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.13`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.14`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.13` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.14` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.
