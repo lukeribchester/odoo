@@ -58,7 +58,8 @@ details in the float-aware left column. Version 1.6.5 refines its spacing and th
 label above invoice Terms and Conditions. Version 1.6.8 restores the normal report text color for that section and moves
 the company contact gap to immediately before VAT. Version 1.6.9 consolidates account, reference, and payment-term rows
 beneath a single **Payment Details** heading while preserving their existing field and document-type boundaries. Version
-1.6.10 gives invoice section rows a consistent `#f0f0f0` background across all six document-table styles.
+1.6.10 gives invoice section rows a consistent `#f0f0f0` background across all six document-table styles, and version
+1.6.11 standardizes their font weight at `600` (semi-bold).
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -110,8 +111,10 @@ and obtain professional advice when necessary.
 Invoice line-table rows carrying Odoo's `.o_line_section` class use a consistent `#f0f0f0` background when rendered
 through `lgr.report_invoice_document`. The LGR-scoped rule applies to ordinary and grouped or collapsed section rows in
 desktop and mobile output and takes precedence over each of Odoo's six selectable document-table styles. Section text
-retains the normal configured report text color for readability. Subsection rows, product rows, notes, headers, totals,
-and invoice tables rendered through alternate statutory templates remain unchanged.
+retains the normal configured report text color for readability and uses `font-weight: 600` (semi-bold) in ordinary and
+grouped or collapsed rows. The weight applies to every section-row cell, including any amount or total cell. Subsection
+rows, product rows, notes, headers, totals outside section rows, and invoice tables rendered through alternate statutory
+templates remain unchanged.
 
 ### Consolidated payment details
 
@@ -182,7 +185,8 @@ information, QR instructions, and payment details with the existing compact docu
 body line height remains unchanged; the shared key/value tables retain their explicit `1.2` line height.
 
 The established hierarchy remains intact: the visible document title is `1.5rem`, the footer is `.8rem`, and Odoo's
-`.small` text remains proportionally smaller than its surrounding content. Bold section rows, italic note rows, and
+`.small` text remains proportionally smaller than its surrounding content. Semi-bold (`600`) invoice section rows,
+italic note rows, and
 explicit font sizes embedded in rich-text fields continue to apply. Font family selection remains company-configured,
 including Odoo's default Lato. Built-in layouts and reports not rendered through LGR keep their original body size.
 
@@ -378,7 +382,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.10`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.11`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -416,7 +420,8 @@ update. The canonical invoice route requires no new report-action selection.
   both standard columns.
 - Exercise ordinary and grouped or collapsed invoice section rows in desktop/mobile HTML and A4/Letter PDFs across all
   six Odoo document-table styles. Confirm each `.o_line_section` cell resolves to exactly `#f0f0f0`, retains readable
-  normal report text color, and leaves subsection and every other invoice-table row type unchanged.
+  normal report text color, and resolves to `font-weight: 600` for both ordinary and grouped or collapsed rows,
+  including their amount or total cells. Confirm subsection and every other invoice-table row type remain unchanged.
 - Exercise the option with products, sections, subsections, notes, discounts, taxes, grouped compositions, and collapsed
   prices in desktop/mobile HTML, A4/Letter PDFs, and mixed checked/unchecked batches. Confirm Discount, Taxes, Amount,
   and totals remain visible, and that the option leaves stored quantities and unit prices, calculations, exports, and
@@ -494,7 +499,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.10`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.11`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.10` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.11` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.
