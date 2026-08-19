@@ -73,6 +73,17 @@
             </attribute>
         </xpath>
 
+        <xpath expr="//div[@id='payment_term']/*[1]"
+               position="before">
+            <xpath expr="//div[@id='payment_term']/div[@name='comment']"
+                   position="move"/>
+        </xpath>
+
+        <xpath expr="//div[@id='payment_term']/div[@name='comment']"
+               position="attributes">
+            <attribute name="class">text-muted mb-3 o_lgr_terms_conditions</attribute>
+        </xpath>
+
         <xpath expr="//div[@id='payment_term']/t[@t-set='payment_term_details']"
                position="after">
             <t t-set="lgr_show_payment_reference"

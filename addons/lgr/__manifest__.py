@@ -1,7 +1,7 @@
 {
     "name": "LGR",
     "summary": "Custom document layout and invoice template for Accounting and Sales reports",
-    "version": "1.6.3",
+    "version": "1.6.4",
     "category": "Technical",
     "author": "Luke Gareth Ribchester",
     "license": "LGPL-3",

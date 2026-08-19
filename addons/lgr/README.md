@@ -52,7 +52,8 @@ views. Version 1.5.0 established this routing and stable customization point; ve
 behavior provided by the optional Studio-controlled quantity and unit-price setting described below. Version 1.6.0 adds
 the structured payment and bank details described below, and version 1.6.1 aligns those details with the document-detail
 grid. Version 1.6.2 shortens the bank-transfer QR instruction while preserving its two-line presentation. Version 1.6.3
-uses separate column ratios for the payment and bank tables.
+uses separate column ratios for the payment and bank tables. Version 1.6.4 moves Terms and Conditions above the payment
+details in the float-aware left column.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -101,10 +102,15 @@ and obtain professional advice when necessary.
 
 ### Structured payment and bank details
 
-The LGR invoice body keeps payment information in Odoo's existing left-aligned `#payment_term` area beneath the invoice
-line table and alongside the right-floating totals. A common float-aware wrapper uses automatic width and hidden
-overflow to give both payment tables the same available width without introducing another float. The first structured
-table renders available values in this order:
+The invoice's existing Terms and Conditions (`account.move.narration`) are the first left-side block beneath the invoice
+line table, before fiscal and tax notes and before the payment details. Their content and inheritance anchor remain
+unchanged. An automatic-width, hidden-overflow wrapper keeps the rich-text block within the space beside the
+right-floating totals; if that space is insufficient, the complete block flows beneath the totals.
+
+The LGR invoice body keeps payment information in Odoo's existing left-aligned `#payment_term` area alongside the
+right-floating totals. A common float-aware wrapper uses automatic width and hidden overflow to give both payment tables
+the same available width without introducing another float. The first structured table renders available values in this
+order:
 
 1. **Payment Reference:** `account.move.payment_reference`
 2. **Payment Terms:** the translated `account.payment.term.name`
@@ -112,8 +118,8 @@ table renders available values in this order:
 Odoo's existing early-payment discount and installment details follow the payment table and precede the bank table.
 
 The Payment Terms value deliberately uses the concise payment-term name rather than the editable rich-text **Description
-on the Invoice** (`account.payment.term.note`). That rich-text note is no longer printed in this block; the invoice's
-separate narration and legal or fiscal-position notes remain unchanged.
+on the Invoice** (`account.payment.term.note`). That rich-text note is no longer printed in this block; the moved
+invoice narration and legal or fiscal-position notes retain their original content.
 
 When Odoo's existing bank condition is met, a second section renders:
 
@@ -335,7 +341,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.3`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.4`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -372,6 +378,10 @@ update. The canonical invoice route requires no new report-action selection.
   prices in desktop/mobile HTML, A4/Letter PDFs, and mixed checked/unchecked batches. Confirm Discount, Taxes, Amount,
   and totals remain visible, and that the option leaves stored quantities and unit prices, calculations, exports, and
   EDI/UBL data unchanged.
+- Confirm Terms and Conditions render once as the first left-side block below the invoice table, followed by fiscal and
+  tax notes, payment details, bank details, and QR sections. Test absent, short, multiline, long, and rich-text
+  narration beside both short and tall totals, verifying that it does not overlap the totals and flows below them only
+  when needed.
 - Confirm the structured payment section displays available **Payment Reference:** and **Payment Terms:** rows in that
   order, with bold labels and normal-weight values. Verify Payment Terms uses the translated payment-term name, the
   former rich-text payment-term note is absent, and early-payment discount and installment details remain intact.
@@ -391,8 +401,8 @@ update. The canonical invoice route requires no new report-action selection.
   widths without overlap and that the aligned group may move below the totals when the remaining width is insufficient.
   Exercise all six Odoo document-table styles and verify `o_ignore_layout_styling` keeps every structural key/value
   table visually unchanged.
-- Confirm invoice narration, fiscal and legal notes, totals, payment calculations, stored payment and bank data, and EDI
-  output remain unchanged by the structured presentation.
+- Confirm invoice narration content, fiscal and legal notes, totals, payment calculations, stored payment and bank data,
+  and EDI output remain unchanged apart from the narration's new position and constrained width.
 - Preview and export invoices, credit notes, receipts, vendor documents, quotations, orders, Sales pro-formas, and the
   supported draft, cancelled, posted, self-billing, and separate invoice/shipping-address cases.
 - Confirm each visible title retains its translated document-type wording without the record identifier or trailing `#`,
@@ -425,7 +435,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.3`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.4`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.3` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.4` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.
