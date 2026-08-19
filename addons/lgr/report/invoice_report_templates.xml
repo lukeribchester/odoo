@@ -7,7 +7,55 @@
     <template id="report_invoice_document"
               name="LGR Invoice Document"
               inherit_id="account.report_invoice_document"
-              primary="True"/>
+              primary="True">
+        <xpath expr="//table[@name='invoice_line_table']" position="before">
+            <t t-set="lgr_hide_quantity"
+               t-value="'x_studio_hide_quantity' in o and o.x_studio_hide_quantity"/>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//th[@name='th_quantity']"
+               position="attributes">
+            <attribute name="t-if">not lgr_hide_quantity</attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='td_quantity']"
+               position="attributes">
+            <attribute name="t-if">not lgr_hide_quantity</attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='line_name_td']"
+               position="attributes">
+            <attribute name="t-att-colspan">1 if is_product else line_colspan - (1 if lgr_hide_quantity else 0)
+            </attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//t[@name='account_invoice_line_section']/td[@colspan='2']"
+               position="attributes">
+            <attribute name="colspan"/>
+            <attribute name="t-att-colspan">1 if lgr_hide_quantity else 2</attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='account_invoice_line_name_grouped_desktop']"
+               position="attributes">
+            <attribute name="t-att-colspan">line_colspan - (1 if lgr_hide_quantity and grouped_line['display_type'] in
+                ('line_section', 'line_subsection') and not hide_details else 0)
+            </attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='account_invoice_line_name_grouped']"
+               position="attributes">
+            <attribute name="t-att-colspan">1 if grouped_line['display_type'] == 'product' or (lgr_hide_quantity and
+                grouped_line['display_type'] in ('line_section', 'line_subsection') and not hide_details) else 2
+            </attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='td_quantity_grouped']"
+               position="attributes">
+            <attribute name="t-if">not lgr_hide_quantity and (hide_details or (hide_prices and
+                grouped_line['display_type'] not in ('line_section', 'line_subsection')))
+            </attribute>
+        </xpath>
+    </template>
 
     <!--
         Route only Odoo's standard invoice-document branch through LGR. Country
