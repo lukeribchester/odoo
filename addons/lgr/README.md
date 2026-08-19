@@ -1,7 +1,9 @@
 # LGR
 
-An importable custom document layout for Odoo Online. The module adds **LGR** to Odoo's document-layout selector without
-modifying any of Odoo's built-in layouts. Installation does not automatically select LGR for a company.
+An importable custom document layout and invoice-template foundation for Odoo Online. The module adds **LGR** to Odoo's
+document-layout selector without modifying any of Odoo's built-in layouts. It also routes Odoo's standard invoice-report
+branch through an independent LGR primary template based on the resolved default invoice document. Installation does not
+automatically select the LGR document layout for a company or change an existing partner or journal report preference.
 
 ## Layout behavior
 
@@ -41,6 +43,35 @@ The layout preserves Odoo's report article metadata, document slot, complete hid
 blocks, configured font and colors, and all six built-in table styles. Structural layout and document-details tables are
 excluded from document-table styling. The original complete title remains in Odoo's invisible article heading for PDF
 invoice splitting even though the cleaned visible title is rendered in the first-page masthead.
+
+## Custom invoice template and canonical routing
+
+`lgr.report_invoice_document` is a primary inheritance of `account.report_invoice_document`. It provides an independent
+invoice-design surface while retaining Odoo's resolved default invoice architecture, including compatible extension
+views. The template intentionally starts without body-design changes, so version 1.5.0 establishes the routing and a
+stable customization point before the invoice design is developed.
+
+`lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
+standard branch whose report name is `account.report_invoice_document`. That branch calls
+`lgr.report_invoice_document`; its condition, language handling, iteration, report container, and other dispatcher
+branches remain unchanged. In particular, a country module that makes `_get_name_invoice_report()` return another
+primary invoice-template key continues through its own branch rather than being forced through LGR.
+
+The module deliberately does not register another `ir.actions.report`. Odoo's existing **Invoice PDF** action and its
+Accounting report model remain canonical, preserving payment-line behavior, QR preparation, invoice validation, EDI
+post-processing, attachment generation, portal and pro-forma fallback paths, and multi-invoice splitting. There is no
+second **LGR Invoice PDF** choice to configure. Existing partner and journal preferences remain stored and continue to
+select their configured report actions; selecting Odoo's canonical invoice action uses the LGR standard branch, while a
+different report action is outside this routing change.
+
+For records that resolve to Odoo's standard invoice-document branch, real rendering through Print, Send & Print, PDF
+generation, and the portal's canonical report path uses the LGR invoice document. Odoo's generic **Configure Document
+Layout** preview and its dedicated
+`account.report_invoice_document_preview` template are intentionally not replaced by this invoice-template route. The
+existing LGR preview adapters continue to preview the document layout and context-aware masthead, while invoice-body
+design changes must be validated with a real invoice preview or rendered report. Existing generated invoice PDF
+attachments are not rewritten by the module update; use a new invoice or another normal Odoo regeneration path when
+validating the new route.
 
 ## Context-aware document details
 
@@ -161,9 +192,11 @@ The built-in reusable helper templates are:
 - `lgr.sale_order_document_details`
 - `lgr.preview_document_details`
 
-A future custom invoice template can call, inherit, or replace `lgr.account_move_document_details`, or pass its own
-`lgr_document_details` fragment, without changing the external layout. Report-specific templates should continue to own
-field selection, conditions, translatable source wording, and formatting; the shared layout owns placement and styling.
+The LGR invoice template inherits the resolved default invoice document and therefore receives the existing Accounting
+details adapter. Future invoice-design changes can call, inherit, or replace `lgr.account_move_document_details`, or
+pass their own `lgr_document_details` fragment, without changing the external layout. Report-specific templates should
+continue to own field selection, conditions, translatable source wording, and formatting; the shared layout owns
+placement and styling.
 
 The helpers render in Odoo's existing partner-language context, so month names, dates, and field widgets retain
 localized formatting within LGR's fixed day–full-month–year date order.
@@ -188,8 +221,9 @@ The module directly depends on `web`, `account`, and `sale`. Those applications 
 target database. Its short numeric version is series-neutral: Odoo prefixes it with the active server series, avoiding a
 manual manifest-version change for each SaaS upgrade.
 
-This implementation intentionally does not adapt `account.payment` payment receipts, Purchase, Inventory, Repair, or
-country modules that select a different primary invoice report. Those report families require their own small adapters
+The custom invoice template intentionally covers the canonical `account.report_invoice_document` route. It does not
+override country modules that select a different primary invoice report, and it does not adapt `account.payment` payment
+receipts, Purchase, Inventory, or Repair reports. Those report families require their own focused templates or adapters
 and should be added only when the corresponding applications or localized reports are in scope.
 
 The 11 mm PDF override is intentionally limited to all-LGR batches of the standard Accounting invoice and Sales
@@ -200,7 +234,7 @@ accepted limitation must be tested against real company data.
 
 ## Package, install, and update on Odoo Online
 
-1. From the `addons` directory containing `lgr`, recreate the archive from the explicit nine-file allowlist. Removing
+1. From the `addons` directory containing `lgr`, recreate the archive from the explicit ten-file allowlist. Removing
    the previous archive first ensures that stale metadata or cache entries cannot survive an update:
 
    ```bash
@@ -212,6 +246,7 @@ accepted limitation must be tested against real company data.
        lgr/data/report_layout_data.xml \
        lgr/report/external_layout_templates.xml \
        lgr/report/account_document_details.xml \
+       lgr/report/invoice_report_templates.xml \
        lgr/report/sale_document_details.xml \
        lgr/report/preview_document_details_templates.xml \
        lgr/static/src/scss/lgr.scss
@@ -225,7 +260,8 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record and company selection are retained across this `1.4.0` update.
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.5.0`
+update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
 
@@ -233,6 +269,24 @@ record and company selection are retained across this `1.4.0` update.
   title, details, then company/recipient addresses, with the logo at the top right, an 11 mm top inset, and no
   duplicated
   `#informations` block.
+- Confirm the combined `lgr.report_invoice_document` architecture initially matches Odoo's resolved default invoice
+  document, apart from the independent template identity, and still contains the LGR Accounting-details adapter.
+- Confirm `lgr.report_invoice_use_lgr_document` changes exactly one `t-call`: the standard
+  `account.report_invoice_document` branch in `account.report_invoice`. Verify that the branch condition, partner
+  language, payment-enabled wrapper, and every localization-owned dispatcher branch remain unchanged.
+- Render the same records through Odoo's canonical **Invoice PDF** action before and after the update. Compare invoice
+  lines, sections and notes, discounts, taxes, totals, payment entries, QR behavior, payment communication, terms,
+  fiscal-position data, attachment generation, portal output, pro-forma fallback, and multi-record splitting. Confirm
+  the default action and specialized Accounting rendering context are retained and no second invoice report action was
+  created. Use newly created invoices for this comparison, and separately confirm that an already generated PDF remains
+  the unchanged stored attachment.
+- Test an existing partner-specific report preference, an existing journal-specific report preference, and the normal
+  fallback to **Invoice PDF**. Confirm preferences are not rewritten, a deliberately selected alternative action remains
+  outside LGR routing, and the canonical action uses `lgr.report_invoice_document` when
+  `_get_name_invoice_report()` returns `account.report_invoice_document`.
+- Confirm the generic document-layout preview continues using its dedicated preview template. Validate future invoice
+  body changes with a real invoice preview and PDF rather than treating the generic layout preview as an invoice-body
+  preview.
 - Preview and export invoices, credit notes, receipts, vendor documents, quotations, orders, Sales pro-formas, and the
   supported draft, cancelled, posted, self-billing, and separate invoice/shipping-address cases.
 - Confirm each visible title retains its translated document-type wording without the record identifier or trailing `#`,
@@ -265,7 +319,7 @@ record and company selection are retained across this `1.4.0` update.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the nine allowlisted regular files, reports version `1.4.0`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.5.0`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.4.0` into a staging Odoo Online database with **Force init** disabled and confirm the company's
-  existing LGR selection persists before updating production.
+- Import version `1.5.0` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+  existing LGR selection and report preferences persist before updating production.
