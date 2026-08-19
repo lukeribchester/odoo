@@ -155,11 +155,11 @@
 
 .o_lgr_key_value_table.o_lgr_structural_table.o_lgr_payment_summary {
   .o_lgr_key_value_label {
-    width: 30%;
+    width: 25%;
   }
 
   .o_lgr_key_value_value {
-    width: 70%;
+    width: 75%;
   }
 }
 
@@ -260,10 +260,22 @@
 
 .o_lgr_terms_conditions {
   width: auto;
+  padding-top: 12mm;
+  padding-bottom: 24mm;
   overflow: hidden;
   text-align: left;
   white-space: normal;
   word-wrap: break-word;
+
+  > :first-child,
+  > span > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child,
+  > span > :last-child {
+    margin-bottom: 0;
+  }
 }
 
 .o_lgr_payment_groups {

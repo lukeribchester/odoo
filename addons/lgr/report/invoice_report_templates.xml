@@ -81,7 +81,13 @@
 
         <xpath expr="//div[@id='payment_term']/div[@name='comment']"
                position="attributes">
-            <attribute name="class">text-muted mb-3 o_lgr_terms_conditions</attribute>
+            <attribute name="class">text-muted o_lgr_terms_conditions</attribute>
+        </xpath>
+
+        <xpath expr="//div[@id='payment_term']"
+               position="attributes">
+            <attribute name="class"/>
+            <attribute name="t-attf-class">clearfix#{' mt-3' if is_html_empty(o.narration) else ''}</attribute>
         </xpath>
 
         <xpath expr="//div[@id='payment_term']/t[@t-set='payment_term_details']"
@@ -110,13 +116,13 @@
                position="replace">
             <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_key_value_table o_lgr_payment_summary avoid-page-break-inside">
                 <colgroup>
-                    <col style="width: 30%;"/>
-                    <col style="width: 70%;"/>
+                    <col style="width: 25%;"/>
+                    <col style="width: 75%;"/>
                 </colgroup>
                 <tbody>
                     <tr t-if="lgr_show_payment_reference">
                         <td class="o_lgr_key_value_label">
-                            <strong>Payment Reference:</strong>
+                            <strong>Payment Reference</strong>
                         </td>
                         <td class="o_lgr_key_value_value">
                             <p name="payment_communication" class="m-0">
@@ -127,7 +133,7 @@
                     <tr t-if="o.invoice_payment_term_id">
                         <td class="o_lgr_key_value_label">
                             <strong>
-                                <span id="payment_terms_note_id" name="payment_term">Payment Terms:</span>
+                                <span id="payment_terms_note_id" name="payment_term">Payment Terms</span>
                             </strong>
                         </td>
                         <td class="o_lgr_key_value_value">
@@ -150,7 +156,7 @@
                     <tbody>
                         <tr>
                             <td class="o_lgr_key_value_label">
-                                <strong>Name:</strong>
+                                <strong>Name</strong>
                             </td>
                             <td class="o_lgr_key_value_value">
                                 <span t-field="o.company_id.name">My Company</span>
@@ -158,7 +164,7 @@
                         </tr>
                         <tr>
                             <td class="o_lgr_key_value_label">
-                                <strong>IBAN:</strong>
+                                <strong>IBAN</strong>
                             </td>
                             <td class="o_lgr_key_value_value">
                                 <span t-field="o.partner_bank_id.account_number">NL91ABNA0417164300</span>
@@ -166,7 +172,7 @@
                         </tr>
                         <tr t-if="o.partner_bank_id.bank_bic">
                             <td class="o_lgr_key_value_label">
-                                <strong>BIC/SWIFT:</strong>
+                                <strong>BIC/SWIFT</strong>
                             </td>
                             <td class="o_lgr_key_value_value">
                                 <span t-field="o.partner_bank_id.bank_bic">ABNANL2A</span>
