@@ -85,7 +85,7 @@
 
         <xpath expr="//span[@id='payment_terms_note_id']/parent::div"
                position="attributes">
-            <attribute name="class">o_lgr_payment_summary avoid-page-break-inside</attribute>
+            <attribute name="class">o_lgr_payment_groups</attribute>
             <attribute name="t-if">lgr_show_payment_summary</attribute>
         </xpath>
 
@@ -93,45 +93,77 @@
                position="replace"/>
 
         <xpath expr="//div[@id='payment_term']/div[p[@name='payment_communication']]"
+               position="replace"/>
+
+        <xpath expr="//span[@id='payment_terms_note_id']"
                position="replace">
+            <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_key_value_table o_lgr_payment_summary avoid-page-break-inside">
+                <colgroup>
+                    <col style="width: 20%;"/>
+                    <col style="width: 80%;"/>
+                </colgroup>
+                <tbody>
+                    <tr t-if="lgr_show_payment_reference">
+                        <td class="o_lgr_key_value_label">
+                            <strong>Payment Reference:</strong>
+                        </td>
+                        <td class="o_lgr_key_value_value">
+                            <p name="payment_communication" class="m-0">
+                                <span t-field="o.payment_reference">INV/2023/00001</span>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr t-if="o.invoice_payment_term_id">
+                        <td class="o_lgr_key_value_label">
+                            <strong>
+                                <span id="payment_terms_note_id" name="payment_term">Payment Terms:</span>
+                            </strong>
+                        </td>
+                        <td class="o_lgr_key_value_value">
+                            <span t-field="o.invoice_payment_term_id.name">30 Days</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </xpath>
+
+        <xpath expr="//div[@id='payment_term']/div[.//span[@id='payment_terms_note_id']]"
+               position="inside">
             <div t-if="lgr_show_bank_details"
                  class="o_lgr_bank_details avoid-page-break-inside">
-                <div class="o_lgr_payment_row">
-                    <span class="o_lgr_payment_label">Name:</span>
-                    <span class="o_lgr_payment_value" t-field="o.company_id.name">My Company</span>
-                </div>
-                <div class="o_lgr_payment_row">
-                    <span class="o_lgr_payment_label">IBAN:</span>
-                    <span class="o_lgr_payment_value" t-field="o.partner_bank_id.account_number">NL91ABNA0417164300
-                    </span>
-                </div>
-                <div t-if="o.partner_bank_id.bank_bic" class="o_lgr_payment_row">
-                    <span class="o_lgr_payment_label">BIC/SWIFT:</span>
-                    <span class="o_lgr_payment_value" t-field="o.partner_bank_id.bank_bic">ABNANL2A</span>
-                </div>
+                <table class="table-borderless w-100 o_ignore_layout_styling o_lgr_structural_table o_lgr_key_value_table o_lgr_bank_details_table">
+                    <colgroup>
+                        <col style="width: 20%;"/>
+                        <col style="width: 80%;"/>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td class="o_lgr_key_value_label">
+                                <strong>Name:</strong>
+                            </td>
+                            <td class="o_lgr_key_value_value">
+                                <span t-field="o.company_id.name">My Company</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="o_lgr_key_value_label">
+                                <strong>IBAN:</strong>
+                            </td>
+                            <td class="o_lgr_key_value_value">
+                                <span t-field="o.partner_bank_id.account_number">NL91ABNA0417164300</span>
+                            </td>
+                        </tr>
+                        <tr t-if="o.partner_bank_id.bank_bic">
+                            <td class="o_lgr_key_value_label">
+                                <strong>BIC/SWIFT:</strong>
+                            </td>
+                            <td class="o_lgr_key_value_value">
+                                <span t-field="o.partner_bank_id.bank_bic">ABNANL2A</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-        </xpath>
-
-        <xpath expr="//span[@id='payment_terms_note_id']"
-               position="before">
-            <p t-if="lgr_show_payment_reference"
-               name="payment_communication"
-               class="o_lgr_payment_row">
-                <span class="o_lgr_payment_label">Payment Reference:</span>
-                <span class="o_lgr_payment_value" t-field="o.payment_reference">INV/2023/00001</span>
-            </p>
-        </xpath>
-
-        <xpath expr="//span[@id='payment_terms_note_id']"
-               position="replace">
-            <p t-if="o.invoice_payment_term_id"
-               class="o_lgr_payment_row">
-                <span id="payment_terms_note_id"
-                      name="payment_term"
-                      class="o_lgr_payment_label">Payment Terms:
-                </span>
-                <span class="o_lgr_payment_value" t-field="o.invoice_payment_term_id.name">30 Days</span>
-            </p>
         </xpath>
 
         <xpath expr="//div[@id='payment_term']/div[@id='qrcode']"

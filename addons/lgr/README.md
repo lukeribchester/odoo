@@ -40,9 +40,9 @@ document-layout preview shows `Page 1 of 1`. Normal HTML reports omit the counte
 total page count there.
 
 The layout preserves Odoo's report article metadata, document slot, complete hidden PDF title, address and information
-blocks, configured font and colors, and all six built-in table styles. Structural layout and document-details tables are
-excluded from document-table styling. The original complete title remains in Odoo's invisible article heading for PDF
-invoice splitting even though the cleaned visible title is rendered in the first-page masthead.
+blocks, configured font and colors, and all six built-in table styles. Structural layout tables and every shared
+key/value table are excluded from document-table styling. The original complete title remains in Odoo's invisible
+article heading for PDF invoice splitting even though the cleaned visible title is rendered in the first-page masthead.
 
 ## Custom invoice template and canonical routing
 
@@ -50,7 +50,8 @@ invoice splitting even though the cleaned visible title is rendered in the first
 invoice-design surface while retaining Odoo's resolved default invoice architecture, including compatible extension
 views. Version 1.5.0 established this routing and stable customization point; version 1.5.2 includes the focused body
 behavior provided by the optional Studio-controlled quantity and unit-price setting described below. Version 1.6.0 adds
-the structured payment and bank details described below.
+the structured payment and bank details described below, and version 1.6.1 aligns those details with the document-detail
+grid.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -100,11 +101,14 @@ and obtain professional advice when necessary.
 ### Structured payment and bank details
 
 The LGR invoice body keeps payment information in Odoo's existing left-aligned `#payment_term` area beneath the invoice
-line table and alongside the right-floating totals. The first structured section renders available values in this order:
+line table and alongside the right-floating totals. A common float-aware wrapper uses automatic width and hidden
+overflow to give both payment tables the same available width without introducing another float. The first structured
+table renders available values in this order:
 
 1. **Payment Reference:** `account.move.payment_reference`
 2. **Payment Terms:** the translated `account.payment.term.name`
-3. Odoo's existing early-payment discount and installment details
+
+Odoo's existing early-payment discount and installment details follow the payment table and precede the bank table.
 
 The Payment Terms value deliberately uses the concise payment-term name rather than the editable rich-text **Description
 on the Invoice** (`account.payment.term.note`). That rich-text note is no longer printed in this block; the invoice's
@@ -117,10 +121,23 @@ When Odoo's existing bank condition is met, a second section renders:
 3. **BIC/SWIFT:** the selected bank account's associated BIC/SWIFT code, when available
 
 The bank section retains Odoo's existing scope: it is shown only for an outgoing invoice or incoming refund that has
-both a payment reference and a selected partner bank. All labels are bold and values use normal weight. A non-collapsing
-6 mm gap separates the payment and bank sections, and another 6 mm gap separates the bank section from the first active
-bank or payment-link QR-code section. These gaps are omitted when the adjacent section is absent. Each section stays
-left aligned, permits long values to wrap, and uses best-effort page-break avoidance for wkhtmltopdf.
+both a payment reference and a selected partner bank. The payment and bank sections use separate, full-width,
+fixed-layout tables with the same shared `.o_lgr_key_value_table` class as the context-aware document details. Labels
+occupy 20% and values 80%; cells use `.875rem` text, `1.2` line height, `.5mm` vertical padding, and a `2mm` right
+gutter after the label. All labels are bold, all values use normal weight, and every value therefore begins on the same
+vertical axis. Longer labels or translations—including **Payment Reference:**—may wrap within the deliberately narrow
+label column.
+
+Each structural table is marked `o_ignore_layout_styling`, so Odoo's six selectable document-table themes do not add
+borders, backgrounds, or competing spacing. Fixed-layout tables are used instead of Flexbox or CSS Grid because they
+provide more predictable column alignment in Odoo's wkhtmltopdf renderer. Odoo's existing early-payment discount and
+installment details remain between the payment and bank tables and may paginate independently.
+
+A non-collapsing 6 mm gap separates the payment and bank sections, and another 6 mm gap separates the bank section from
+the first active bank or payment-link QR-code section. These gaps are omitted when the adjacent section is absent. Each
+table remains left aligned, permits long values to wrap, and uses best-effort page-break avoidance. If the space beside
+the right-floating totals becomes too narrow, the common payment group may flow below the totals rather than assigning
+different column widths to its two tables.
 
 This is presentation-only behavior. It does not change payment terms, references, bank records, calculations, payment
 processing, or EDI output. The new literal labels are English until corresponding entries are added to an LGR
@@ -161,12 +178,13 @@ The Sales helper covers quotations, sales orders, and Sales pro-forma invoices a
 | 6     | Incoterm and location            |
 | 7     | Contact                          |
 
-Each detail occupies one label/value row, and the complete row is omitted when its value is unavailable. Long values
-wrap instead of being truncated. Labels occupy 20% of the table, values occupy 80%, and a 2 mm right padding on the
-label cell provides the minimum gutter. This split is optimized for labels of up to approximately 14 characters; longer
-labels and translations may wrap. The generic layout preview displays its dummy invoice number, invoice date, and due
-date in the same single-column table. Active invoice and quotation previews use their Accounting and Sales helpers and
-real record values.
+Each detail occupies one label/value row, and the complete row is omitted when its value is unavailable. The Accounting,
+Sales, preview, payment, and bank tables all use the shared LGR key/value-table geometry: labels occupy 20%, values
+occupy 80%, and a 2 mm right padding on the label cell provides the minimum gutter. The fixed-layout tables use
+`.875rem` text, `1.2` line height, `.5mm` vertical cell padding, top alignment, and normal wrapping. This split is
+optimized for labels of up to approximately 14 characters; longer labels and translations may occupy another line. The
+generic layout preview displays its dummy invoice number, invoice date, and due date in the same single-column table.
+Active invoice and quotation previews use their Accounting and Sales helpers and real record values.
 
 All seven Accounting and Sales detail dates use the fixed `d MMMM yyyy` presentation. Month names follow the report
 partner's language, so the same date renders as `1 January 2026` in English and `1 januari 2026` in Dutch. Date and
@@ -318,7 +336,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.0`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.1`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -365,6 +383,14 @@ update. The canonical invoice route requires no new report-action selection.
   exactly 6 mm between adjacent payment and bank sections and between the bank section and the first active bank or
   payment-link QR code, with no empty gap when the adjacent section is absent. Test both QR types, both enabled, neither
   enabled, zero residual, long wrapping values, and page breaks near the invoice-line table in HTML and A4/Letter PDFs.
+- Confirm every Accounting, Sales, preview, payment, and bank key/value table uses the shared fixed-layout geometry:
+  `20%` label and `80%` value columns, `.875rem` text, `1.2` line height, `.5mm` vertical padding, and a `2mm`
+  label/value gutter. Verify all payment and bank values begin at the same horizontal position, including when **Payment
+  Reference:** or a translated label wraps.
+- Test the payment group beside short and tall right-floating totals. Confirm the payment and bank tables retain equal
+  widths without overlap and that the aligned group may move below the totals when the remaining width is insufficient.
+  Exercise all six Odoo document-table styles and verify `o_ignore_layout_styling` keeps every structural key/value
+  table visually unchanged.
 - Confirm invoice narration, fiscal and legal notes, totals, payment calculations, stored payment and bank data, and EDI
   output remain unchanged by the structured presentation.
 - Preview and export invoices, credit notes, receipts, vendor documents, quotations, orders, Sales pro-formas, and the
@@ -399,7 +425,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.0`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.1`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.0` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.6.1` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.

@@ -109,6 +109,50 @@
   }
 }
 
+// Pair with the structural-table class so these cell metrics take precedence
+// over the structural table's zero-padding reset inside an LGR layout.
+.o_lgr_key_value_table.o_lgr_structural_table {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+  background: transparent;
+  font-size: .875rem;
+  line-height: 1.2;
+  page-break-inside: avoid;
+
+  th,
+  td {
+    box-sizing: border-box;
+    padding: .5mm 2mm .5mm 0;
+    border: 0;
+    background: transparent;
+    vertical-align: top;
+    line-height: 1.2;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+
+  .o_lgr_key_value_label,
+  .o_lgr_document_detail_label {
+    width: 20%;
+    font-weight: 700;
+  }
+
+  .o_lgr_key_value_value,
+  .o_lgr_document_detail_value {
+    width: 80%;
+    font-weight: 400;
+  }
+
+  th:last-child,
+  td:last-child {
+    padding-right: 0;
+  }
+}
+
 .o_lgr_article_masthead {
   padding-bottom: 24mm;
   page-break-inside: avoid;
@@ -134,45 +178,6 @@
 
   .o_lgr_document_details_with_title {
     margin-top: 6mm;
-  }
-
-  .o_lgr_document_details_table {
-    width: 100%;
-    margin: 0;
-    border: 0;
-    border-collapse: collapse;
-    border-spacing: 0;
-    table-layout: fixed;
-    background: transparent;
-
-    th,
-    td {
-      box-sizing: border-box;
-      border: 0;
-      background: transparent;
-    }
-
-    .o_lgr_document_detail_label,
-    .o_lgr_document_detail_value {
-      padding: .5mm 2mm .5mm 0;
-      vertical-align: top;
-      line-height: 1.2;
-      white-space: normal;
-      word-wrap: break-word;
-    }
-
-    .o_lgr_document_detail_label {
-      width: 20%;
-      font-weight: 700;
-    }
-
-    .o_lgr_document_detail_value {
-      width: 80%;
-    }
-
-    td:last-child {
-      padding-right: 0;
-    }
   }
 }
 
@@ -233,36 +238,28 @@
   }
 }
 
+.o_lgr_payment_groups {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
 .o_lgr_payment_summary,
 .o_lgr_bank_details {
   margin: 0;
   padding: 0;
   text-align: left;
-  line-height: 1.25;
   white-space: normal;
   word-wrap: break-word;
   page-break-inside: avoid;
 }
 
-.o_lgr_payment_summary + .o_lgr_bank_details {
+.o_lgr_bank_details {
   padding-top: 6mm;
-}
-
-.o_lgr_payment_row {
-  margin: 0;
-  padding: 0;
-  line-height: 1.25;
-  white-space: normal;
-  word-wrap: break-word;
-}
-
-.o_lgr_payment_label {
-  margin-right: .35em;
-  font-weight: 700;
-}
-
-.o_lgr_payment_value {
-  font-weight: 400;
 }
 
 .o_lgr_qr_after_bank {
