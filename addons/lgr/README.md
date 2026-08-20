@@ -68,7 +68,9 @@ product names from their additional descriptions so the description can use a sm
 the white-circle Odoo overlay from the bank-transfer QR while leaving the generated QR image and payment payload intact.
 Version 1.7.2 removes the secondary product/default-UoM conversion beneath ordinary and grouped invoice-line quantities
 while retaining each line's primary quantity and selected unit. Version 1.7.3 moves Odoo's computed tax legal notices
-into the **Note** section immediately after Terms and Conditions, with matching typography and paragraph rhythm.
+into the **Note** section immediately after Terms and Conditions, with matching typography and paragraph rhythm. Version
+1.7.4 suppresses the entirely zero fractional part of whole invoice quantities while retaining the configured Product
+Unit precision for fractional quantities.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -115,12 +117,19 @@ official [Belastingdienst invoice requirements](https://www.belastingdienst.nl/w
 and [European Commission VAT invoicing guidance](https://taxation-customs.ec.europa.eu/taxation/vat/vat-businesses/invoicing_en),
 and obtain professional advice when necessary.
 
-### Invoice secondary quantity display
+### Invoice quantity display
 
 Ordinary and grouped or collapsed-price invoice product rows display only their primary quantity and selected unit. LGR
 removes Odoo's muted secondary conversion to the product/default UoM, such as `17.00 Units` beneath `17.00 Hours`,
 including the conversion's line break and wrapper. Collapsed-composition summaries retain their sole intended quantity;
 they are not secondary conversions.
+
+Visible primary quantities use no decimal places when their fractional part is entirely zero. For example,
+`17.00 Hours`, `0.00 Units`, and `-2.00 Units` render as `17 Hours`, `0 Units`, and `-2 Units`. Fractional quantities
+retain Odoo's configured **Product Unit** precision: `17.50 Hours` remains `17.50 Hours`, rather than being shortened to
+`17.5 Hours`. The same rule covers ordinary, grouped or collapsed-price, and collapsed-composition invoice quantities
+while preserving Odoo's localized number separators and grouping. It does not alter Unit Price or any other monetary
+value.
 
 This is a presentation-only change for invoice-family reports routed through `lgr.report_invoice_document`. It does not
 modify stored quantities, UoM conversions, calculations, exports, or EDI/UBL data. Sales quotations and orders, the
@@ -444,7 +453,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.7.3`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.7.4`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -486,6 +495,11 @@ update. The canonical invoice route requires no new report-action selection.
   without the UoM display group. Confirm collapsed-composition summaries retain their sole intended quantity and that
   stored quantities, conversions, calculations, exports, and EDI/UBL data remain unchanged. Confirm Sales reports, the
   generic document-layout preview, and statutory templates outside the LGR route are unaffected.
+- With Quantity visible, confirm `0.00`, `1.00`, `17.00`, and `-2.00` render without a fractional part in ordinary,
+  grouped or collapsed-price, and collapsed-composition output. Confirm `17.50`, `17.25`, and quantities configured for
+  three decimal places retain the applicable **Product Unit** precision. Repeat in English and Dutch HTML and PDF output
+  and verify that Unit Price, discounts, amounts, totals, stored values, calculations, exports, and EDI remain
+  unchanged.
 - Exercise ordinary and grouped or collapsed invoice section rows in desktop/mobile HTML and A4/Letter PDFs across all
   six Odoo document-table styles. Confirm each `.o_line_section` cell resolves to exactly `#f0f0f0`, retains readable
   normal report text color, and resolves to `font-weight: 600` for both ordinary and grouped or collapsed rows,
@@ -589,7 +603,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.7.3`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.7.4`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.7.3` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.7.4` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.

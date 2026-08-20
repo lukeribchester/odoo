@@ -58,6 +58,23 @@
             <attribute name="t-if">not lgr_hide_quantity</attribute>
         </xpath>
 
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='td_quantity']/span[@t-field='line.quantity']"
+               position="attributes">
+            <attribute name="t-options">{'precision': 0} if line.quantity == int(line.quantity) else {}</attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='td_quantity_grouped']//span[@t-out=&quot;grouped_line['quantity']&quot;]"
+               position="attributes">
+            <attribute name="t-options">{'widget': 'float', 'precision': 0} if grouped_line['quantity'] ==
+                int(grouped_line['quantity']) else {'widget': 'float', 'decimal_precision': 'Product Unit'}
+            </attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='td_quantity_grouped']/div[@t-if='hide_details']/span[1]"
+               position="replace">
+            <span>1</span>
+        </xpath>
+
         <xpath expr="//table[@name='invoice_line_table']//td[@name='td_quantity']/span[t[@t-set='product_uom_qty']]"
                position="replace"/>
 
