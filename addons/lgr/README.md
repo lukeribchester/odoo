@@ -66,6 +66,8 @@ changes the bank-transfer QR instruction to three lines: `Scan the payment`, `de
 `banking application`; the payment-link QR wording remains unchanged. Version 1.7.0 separates safely matched invoice
 product names from their additional descriptions so the description can use a smaller type size. Version 1.7.1 removes
 the white-circle Odoo overlay from the bank-transfer QR while leaving the generated QR image and payment payload intact.
+Version 1.7.2 removes the secondary product/default-UoM conversion beneath ordinary and grouped invoice-line quantities
+while retaining each line's primary quantity and selected unit.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -111,6 +113,18 @@ relevant. Review each intended use against the
 official [Belastingdienst invoice requirements](https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/zakelijk/btw/administratie_bijhouden/facturen_maken/factuureisen/)
 and [European Commission VAT invoicing guidance](https://taxation-customs.ec.europa.eu/taxation/vat/vat-businesses/invoicing_en),
 and obtain professional advice when necessary.
+
+### Invoice secondary quantity display
+
+Ordinary and grouped or collapsed-price invoice product rows display only their primary quantity and selected unit. LGR
+removes Odoo's muted secondary conversion to the product/default UoM, such as `17.00 Units` beneath `17.00 Hours`,
+including the conversion's line break and wrapper. Collapsed-composition summaries retain their sole intended quantity;
+they are not secondary conversions.
+
+This is a presentation-only change for invoice-family reports routed through `lgr.report_invoice_document`. It does not
+modify stored quantities, UoM conversions, calculations, exports, or EDI/UBL data. Sales quotations and orders, the
+generic document-layout preview, and statutory invoice templates that bypass the LGR route remain unchanged. Existing
+generated PDF attachments retain their prior rendering until regenerated through Odoo's normal workflow.
 
 ### Invoice product-name and description styling
 
@@ -419,7 +433,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.7.1`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.7.2`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -454,7 +468,13 @@ update. The canonical invoice route requires no new report-action selection.
 - On invoices, credit notes, receipts, and representative vendor documents routed through LGR, confirm a checked
   `x_studio_hide_quantity` removes the Quantity and Unit Price headers and every corresponding normal, grouped,
   collapsed, and converted-UoM cell without leaving an empty column. Confirm an unchecked or missing field preserves
-  both standard columns.
+  both standard columns and their primary quantity/UoM values.
+- With Quantity visible, test ordinary and grouped or collapsed-price product rows whose selected UoM is identical to
+  and differs from the product/default UoM. Confirm only the primary quantity and selected unit render, with no muted
+  secondary conversion or leftover line break. Repeat in desktop/mobile HTML and A4/Letter PDFs for users with and
+  without the UoM display group. Confirm collapsed-composition summaries retain their sole intended quantity and that
+  stored quantities, conversions, calculations, exports, and EDI/UBL data remain unchanged. Confirm Sales reports, the
+  generic document-layout preview, and statutory templates outside the LGR route are unaffected.
 - Exercise ordinary and grouped or collapsed invoice section rows in desktop/mobile HTML and A4/Letter PDFs across all
   six Odoo document-table styles. Confirm each `.o_line_section` cell resolves to exactly `#f0f0f0`, retains readable
   normal report text color, and resolves to `font-weight: 600` for both ordinary and grouped or collapsed rows,
@@ -553,7 +573,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.7.1`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.7.2`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.7.1` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.7.2` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.

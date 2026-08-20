@@ -58,6 +58,12 @@
             <attribute name="t-if">not lgr_hide_quantity</attribute>
         </xpath>
 
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='td_quantity']/span[t[@t-set='product_uom_qty']]"
+               position="replace"/>
+
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='td_quantity_grouped']//span[t[@t-set='product_uom_qty']]"
+               position="replace"/>
+
         <xpath expr="//table[@name='invoice_line_table']//td[@name='line_name_td']"
                position="attributes">
             <attribute name="t-att-colspan">1 if is_product else line_colspan - (2 if lgr_hide_quantity else 0)
