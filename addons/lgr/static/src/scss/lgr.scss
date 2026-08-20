@@ -303,13 +303,44 @@
     line-height: 1.2;
   }
 
-  > :first-child,
-  > span > :first-child {
+  .o_lgr_terms_narration,
+  .o_lgr_tax_legal_notes,
+  .o_lgr_tax_legal_notes_content {
+    font-family: inherit;
+    font-size: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    color: inherit;
+  }
+
+  .o_lgr_terms_narration,
+  .o_lgr_tax_legal_notes,
+  .o_lgr_tax_legal_notes_content {
+    margin: 0;
+  }
+
+  .o_lgr_tax_legal_notes {
+    padding: 0;
+  }
+
+  .o_lgr_tax_legal_notes_content {
+    padding: 0;
+  }
+
+  .o_lgr_tax_legal_notes_after_narration {
+    padding-top: 1rem;
+  }
+
+  .o_lgr_terms_narration > :first-child,
+  .o_lgr_tax_legal_notes_content > :first-child,
+  .o_lgr_tax_legal_notes_content > span > :first-child {
     margin-top: 0;
   }
 
-  > :last-child,
-  > span > :last-child {
+  .o_lgr_terms_narration > :last-child,
+  .o_lgr_tax_legal_notes_content > :last-child,
+  .o_lgr_tax_legal_notes_content > span > :last-child {
     margin-bottom: 0;
   }
 }

@@ -67,7 +67,8 @@ changes the bank-transfer QR instruction to three lines: `Scan the payment`, `de
 product names from their additional descriptions so the description can use a smaller type size. Version 1.7.1 removes
 the white-circle Odoo overlay from the bank-transfer QR while leaving the generated QR image and payment payload intact.
 Version 1.7.2 removes the secondary product/default-UoM conversion beneath ordinary and grouped invoice-line quantities
-while retaining each line's primary quantity and selected unit.
+while retaining each line's primary quantity and selected unit. Version 1.7.3 moves Odoo's computed tax legal notices
+into the **Note** section immediately after Terms and Conditions, with matching typography and paragraph rhythm.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -161,14 +162,23 @@ requested weight to another available face.
 
 ### Consolidated payment details
 
-The invoice's existing Terms and Conditions (`account.move.narration`) are the first left-side block beneath the invoice
-line table, before fiscal and tax notes and before the payment details. A bold `Note` label appears without a colon
-immediately above the rich-text content. The label uses `.875rem` text, `1.2` line height, and a `2mm` bottom margin.
-The label and narration inherit the normal configured report text color; deliberate colors embedded in rich-text content
-remain effective. The narration content and inheritance anchor remain unchanged. An automatic-width, hidden-overflow
-wrapper keeps the complete block within the space beside the right-floating totals; if that space is insufficient, the
-complete block flows beneath the totals. Non-collapsing spacing places the label exactly 12 mm below the invoice table
-and the narration block 24 mm before the following notes or payment section.
+The invoice's **Note** section is the first left-side block beneath the invoice line table, before the separate
+fiscal-position note and before Payment Details. It appears when either Terms and Conditions (`account.move.narration`)
+or Odoo's computed tax legal notices (`account.move.taxes_legal_notes`) contain visible content. A bold `Note` label
+appears once without a colon, followed by the available content in this order: Terms and Conditions, then tax legal
+notices. When both sources are present, a non-collapsing `1rem` paragraph gap separates them; a tax-only section starts
+directly after the heading without an empty narration gap. The moved tax-notice block retains its original
+`p[name="taxes_legal_notes"]` anchor and rich-text field binding, so Odoo continues to aggregate translated notices from
+the taxes applied to the invoice. Its former standalone position is no longer rendered.
+
+The heading uses `.875rem` text, `1.2` line height, and a `2mm` bottom margin. Narration and tax legal notices inherit
+the same font family, `.875rem` size, weight, line height, and normal configured report text color; deliberate colors or
+other inline formatting embedded in either rich-text source remain effective. The narration field and inheritance anchor
+remain unchanged. An automatic-width, hidden-overflow wrapper keeps the complete section within the space beside the
+right-floating totals; if that space is insufficient, the complete section flows beneath the totals. Non-collapsing
+spacing places the heading exactly 12 mm below the invoice table and the final Notes content 24 mm before the following
+fiscal-position note or Payment Details. When both content sources are empty, the complete section and its spacing are
+omitted and `#payment_term` retains its normal `mt-3` fallback.
 
 The LGR invoice body keeps payment information in Odoo's existing left-aligned `#payment_term` area alongside the
 right-floating totals. An automatic-width, hidden-overflow wrapper provides one available width without introducing
@@ -192,8 +202,9 @@ render the heading and table, while a document with neither value emits no headi
 The bank condition cannot expose account details on additional document types.
 
 The **Terms** value deliberately uses the concise payment-term name rather than the editable rich-text **Description on
-the Invoice** (`account.payment.term.note`). That rich-text note remains absent from this block; the moved invoice
-narration and legal or fiscal-position notes retain their original content. The existing `payment_communication`,
+the Invoice** (`account.payment.term.note`). That rich-text note remains absent from this block; invoice narration and
+the moved computed tax legal notices retain their original content, while the fiscal-position note remains separate. The
+existing `payment_communication`,
 `payment_terms_note_id`, and `payment_term` inheritance anchors remain attached to their corresponding rows so
 compatible extensions can continue to locate them.
 
@@ -433,7 +444,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.7.2`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.7.3`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -495,14 +506,18 @@ update. The canonical invoice route requires no new report-action selection.
   with productless and imported lines. Confirm nonmatching content uses Odoo's complete original rendering without
   truncation or duplication. Confirm sections, subsections, notes, collapsed-composition summaries, stored line data,
   calculations, exports, and EDI/UBL output remain unchanged.
-- Confirm Terms and Conditions render once as the first left-side block below the invoice table. Verify the bold `Note`
-  label has no colon, and that both the label and narration match the normal configured report text color while
-  deliberate rich-text colors remain effective. Confirm the label appears exactly 12 mm below the table, is separated
-  from the narration by its `2mm` bottom margin, uses `.875rem` text and `1.2` line height, and retains the existing 24
-  mm gap below the narration. Test absent, short,
-  multiline, list-based, long, and explicitly formatted rich-text narration beside both short and tall totals, verifying
-  that it does not overlap the totals and flows below them only when needed. When narration is absent, confirm neither
-  the label nor its spacing is emitted and `#payment_term` retains `mt-3`.
+- Test all four Notes combinations: narration plus computed tax legal notices, narration only, tax legal notices only,
+  and neither. Confirm the bold `Note` label appears once without a colon whenever either source contains visible HTML;
+  narration renders first and the tax legal notice follows exactly once with a non-collapsing `1rem` paragraph gap.
+  Confirm tax-only output has no phantom narration gap, while neither source emits a Notes wrapper or its spacing and
+  `#payment_term` retains `mt-3`.
+- Confirm narration and computed tax legal notices share the configured font family, `.875rem` size, weight, line
+  height, and normal report color, while deliberate inline rich-text formatting remains effective. Verify the label is
+  exactly 12 mm below the invoice table, uses `.875rem` text and `1.2` line height, and has a `2mm` gap before the first
+  available content; verify exactly 24 mm follows the final available Notes content. Exercise plain text, multiple
+  paragraphs, lists, translations, multiple applied taxes carrying notices, and short and tall right-side totals.
+  Confirm the moved `p[name="taxes_legal_notes"]` anchor and field binding remain intact, the former standalone tax-note
+  position is absent, and the fiscal-position notice remains a separate following block.
 - Confirm a bold **Payment Details** heading uses a `1.5mm` bottom margin above the consolidated table when Reference or
   Terms is visible. Verify the heading uses `.875rem`, `1.2` line height, and the normal configured report color; with
   the unchanged `.5mm` top padding in the first table row, confirm approximately `2mm` to the first visible row text.
@@ -538,8 +553,9 @@ update. The canonical invoice route requires no new report-action selection.
   table visually unchanged.
 - Populate both masthead `account.move.ref` and Payment Details `account.move.payment_reference`; confirm both distinct
   values render with their intentionally duplicated **Reference** label.
-- Confirm invoice narration content, fiscal and legal notes, totals, payment calculations, stored payment and bank data,
-  printed payments, QR generation, and EDI output remain unchanged apart from the documented presentation changes.
+- Confirm invoice narration and computed tax-notice content, the separate fiscal-position note, totals, payment
+  calculations, stored payment and bank data, printed payments, QR generation, and EDI output remain unchanged apart
+  from the documented tax-notice placement and Notes presentation.
 - Preview and export invoices, credit notes, receipts, vendor documents, quotations, orders, Sales pro-formas, and the
   supported draft, cancelled, posted, self-billing, and separate invoice/shipping-address cases.
 - Confirm each visible title retains its translated document-type wording without the record identifier or trailing `#`,
@@ -573,7 +589,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.7.2`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.7.3`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.7.2` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.7.3` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.

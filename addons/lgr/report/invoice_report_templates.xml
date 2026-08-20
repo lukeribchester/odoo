@@ -139,6 +139,12 @@
             </t>
         </xpath>
 
+        <xpath expr="//div[@id='payment_term']"
+               position="before">
+            <t t-set="lgr_show_notes"
+               t-value="not is_html_empty(o.narration) or not is_html_empty(o.taxes_legal_notes)"/>
+        </xpath>
+
         <xpath expr="//div[@id='payment_term']/*[1]"
                position="before">
             <xpath expr="//div[@id='payment_term']/div[@name='comment']"
@@ -148,6 +154,13 @@
         <xpath expr="//div[@id='payment_term']/div[@name='comment']"
                position="attributes">
             <attribute name="class">o_lgr_terms_conditions</attribute>
+            <attribute name="t-if">lgr_show_notes</attribute>
+        </xpath>
+
+        <xpath expr="//div[@id='payment_term']/div[@name='comment']/span[@t-field='o.narration']"
+               position="attributes">
+            <attribute name="class">o_lgr_terms_narration</attribute>
+            <attribute name="t-if">not is_html_empty(o.narration)</attribute>
         </xpath>
 
         <xpath expr="//div[@id='payment_term']/div[@name='comment']/span[@t-field='o.narration']"
@@ -155,10 +168,29 @@
             <div class="o_lgr_terms_label">Note</div>
         </xpath>
 
+        <xpath expr="//div[@id='payment_term']/div[@name='comment']/span[@t-field='o.narration']"
+               position="after">
+            <xpath expr="//div[@id='payment_term']/div[p[@name='taxes_legal_notes']]"
+                   position="move"/>
+        </xpath>
+
+        <xpath expr="//div[@id='payment_term']/div[@name='comment']/div[p[@name='taxes_legal_notes']]"
+               position="attributes">
+            <attribute name="class">o_lgr_tax_legal_notes</attribute>
+        </xpath>
+
+        <xpath expr="//div[@id='payment_term']/div[@name='comment']//p[@name='taxes_legal_notes']"
+               position="attributes">
+            <attribute name="class"/>
+            <attribute name="t-attf-class">
+                o_lgr_tax_legal_notes_content#{' o_lgr_tax_legal_notes_after_narration' if not is_html_empty(o.narration) else ''}
+            </attribute>
+        </xpath>
+
         <xpath expr="//div[@id='payment_term']"
                position="attributes">
             <attribute name="class"/>
-            <attribute name="t-attf-class">clearfix#{' mt-3' if is_html_empty(o.narration) else ''}</attribute>
+            <attribute name="t-attf-class">clearfix#{' mt-3' if not lgr_show_notes else ''}</attribute>
         </xpath>
 
         <xpath expr="//div[@id='payment_term']/t[@t-set='payment_term_details']"
