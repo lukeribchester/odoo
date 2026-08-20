@@ -64,7 +64,8 @@ face so that this weight is visibly distinct when Open Sans is selected as the c
 aligns the compact line height and visible content gaps of the **Note** and **Payment Details** headings. Version 1.6.14
 changes the bank-transfer QR instruction to three lines: `Scan the payment`, `details with your`, and
 `banking application`; the payment-link QR wording remains unchanged. Version 1.7.0 separates safely matched invoice
-product names from their additional descriptions so the description can use a smaller type size.
+product names from their additional descriptions so the description can use a smaller type size. Version 1.7.1 removes
+the white-circle Odoo overlay from the bank-transfer QR while leaving the generated QR image and payment payload intact.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -196,6 +197,12 @@ non-collapsing 6 mm gap separates the complete Payment Details content, includin
 bank or payment-link QR-code section. The gap is omitted when Payment Details is absent and is not duplicated when both
 QR types are active. If the space beside the right-floating totals becomes too narrow, the complete payment group may
 flow below the totals.
+
+The bank-transfer QR renders its generated QR image without Odoo's separate white-circle logo overlay. Its encoded
+payment payload, generation and visibility conditions, dimensions, position, three-line instruction, and 6 mm spacing
+remain unchanged. The distinct payment-link QR retains its existing Odoo overlay and clickable-link behavior. Odoo's
+separate **Configure Document Layout** preview is not changed by this invoice-template customization. Existing stored
+PDF attachments retain their earlier appearance until Odoo regenerates or replaces them through its normal workflow.
 
 This is presentation-only behavior. It does not change payment terms, references, bank records, calculations, payment
 processing, or EDI output. The new literal labels are English until corresponding entries are added to an LGR
@@ -412,7 +419,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.7.0`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.7.1`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -499,6 +506,9 @@ update. The canonical invoice route requires no new report-action selection.
   A4/Letter PDFs.
 - Confirm the bank-transfer QR instruction renders exactly three lines—`Scan the payment`, `details with your`, and
   `banking application`—while the payment-link QR wording remains unchanged.
+- Confirm the bank-transfer QR retains its generated image and encoded payment payload but contains no white-circle Odoo
+  overlay. Verify the payment-link QR retains its existing overlay and clickable-link behavior, the generic Configure
+  Document Layout preview remains unchanged, and an existing stored PDF is unchanged until regenerated.
 - Confirm Accounting, Sales, and preview key/value tables remain `20%` label / `80%` value and the consolidated Payment
   Details table uses `15% / 85%`. Verify every table retains `.875rem` text, `1.2` line height, `.5mm` vertical padding,
   and the `2mm` label/value gutter.
@@ -543,7 +553,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.7.0`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.7.1`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.7.0` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.7.1` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.

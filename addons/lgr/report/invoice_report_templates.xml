@@ -244,6 +244,9 @@
             </p>
         </xpath>
 
+        <xpath expr="//div[@id='payment_term']/div[@id='qrcode']//img[@id='qrcode_odoo_logo']"
+               position="replace"/>
+
         <xpath expr="//div[@id='payment_term']/div[@id='qrcode']"
                position="attributes">
             <attribute name="class"/>
