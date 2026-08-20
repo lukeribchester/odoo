@@ -63,7 +63,8 @@ beneath a single **Payment Details** heading while preserving their existing fie
 face so that this weight is visibly distinct when Open Sans is selected as the company report font. Version 1.6.13
 aligns the compact line height and visible content gaps of the **Note** and **Payment Details** headings. Version 1.6.14
 changes the bank-transfer QR instruction to three lines: `Scan the payment`, `details with your`, and
-`banking application`; the payment-link QR wording remains unchanged.
+`banking application`; the payment-link QR wording remains unchanged. Version 1.7.0 separates safely matched invoice
+product names from their additional descriptions so the description can use a smaller type size.
 
 `lgr.report_invoice_use_lgr_document` extends `account.report_invoice` at priority 99 and changes only the existing
 standard branch whose report name is `account.report_invoice_document`. That branch calls
@@ -109,6 +110,25 @@ relevant. Review each intended use against the
 official [Belastingdienst invoice requirements](https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/zakelijk/btw/administratie_bijhouden/facturen_maken/factuureisen/)
 and [European Commission VAT invoicing guidance](https://taxation-customs.ec.europa.eu/taxation/vat/vat-businesses/invoicing_en),
 and obtain professional advice when necessary.
+
+### Invoice product-name and description styling
+
+For an ordinary or grouped invoice product line, LGR separates the product name from its additional description only
+when the complete displayed line text either exactly equals the translated product display name or begins with that
+exact name followed by a newline. A safely matched product name retains the invoice body's inherited `.875rem`
+(approximately 14 px) size, weight, and color. Any content after the matching first line is rendered beneath it as a
+separate block at `.75rem` (12 px), normal `400` weight, normal report color, `1.25` line height, and no added margin.
+All remaining description lines and line breaks are preserved.
+
+If the translated product name is unavailable or the complete text does not match this exact prefix contract, LGR
+renders Odoo's original complete line value unchanged. This safe fallback protects manually rewritten labels,
+productless lines, imported values, and localization variations without dropping or rewriting content. Ordinary product
+rows and grouped or collapsed-price product rows use the split in desktop and mobile output. Sections, subsections, note
+rows, and collapsed-composition summaries retain Odoo's existing rendering.
+
+This behavior changes presentation only. It does not modify invoice-line names, products, calculations, stored values,
+exports, or EDI/UBL data. Alternate statutory invoice templates that bypass `lgr.report_invoice_document` remain
+unchanged, and the generic document-layout preview is not authoritative for this invoice-body feature.
 
 ### Invoice section-row styling
 
@@ -392,7 +412,7 @@ accepted limitation must be tested against real company data.
 For an update, upload a newly packaged archive with an incremented manifest version and leave **Force init** disabled.
 Enable **Force init** only when you deliberately need to reload records protected by `noupdate`; LGR does not currently
 declare such records. Validate imports and report changes on a non-production database first. The existing LGR layout
-record, company selection, partner report preferences, and journal report preferences are retained across this `1.6.14`
+record, company selection, partner report preferences, and journal report preferences are retained across this `1.7.0`
 update. The canonical invoice route requires no new report-action selection.
 
 ## Validation checklist
@@ -439,6 +459,15 @@ update. The canonical invoice route requires no new report-action selection.
   prices in desktop/mobile HTML, A4/Letter PDFs, and mixed checked/unchecked batches. Confirm Discount, Taxes, Amount,
   and totals remain visible, and that the option leaves stored quantities and unit prices, calculations, exports, and
   EDI/UBL data unchanged.
+- Test ordinary product rows with no additional description, one description line, and multiple description lines.
+  Confirm an exact translated-product-name match retains the inherited `.875rem` product text and renders every
+  following description line at `.75rem`, normal `400` weight, normal report color, `1.25` line height, and without an
+  added margin. Repeat with default codes, variants, translated product names, grouped or collapsed-price rows, and
+  desktop/mobile HTML and A4/Letter PDF output.
+- Test manually edited labels that do and do not satisfy the exact translated-name-plus-newline prefix contract, along
+  with productless and imported lines. Confirm nonmatching content uses Odoo's complete original rendering without
+  truncation or duplication. Confirm sections, subsections, notes, collapsed-composition summaries, stored line data,
+  calculations, exports, and EDI/UBL output remain unchanged.
 - Confirm Terms and Conditions render once as the first left-side block below the invoice table. Verify the bold `Note`
   label has no colon, and that both the label and narration match the normal configured report text color while
   deliberate rich-text colors remain effective. Confirm the label appears exactly 12 mm below the table, is separated
@@ -514,7 +543,7 @@ update. The canonical invoice route requires no new report-action selection.
   original margins, title placement, and `#informations` block remain unchanged.
 - Confirm every rendered record retains one invisible technical header, one article, and one footer, so multi-document
   footer selection remains correctly indexed.
-- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.6.14`, and contains
+- Confirm the rebuilt archive contains exactly the ten allowlisted regular files, reports version `1.7.0`, and contains
   no `.DS_Store`, `__MACOSX`, cache, or bytecode entries.
-- Import version `1.6.14` into a staging Odoo Online database with **Force init** disabled and confirm the company's
+- Import version `1.7.0` into a staging Odoo Online database with **Force init** disabled and confirm the company's
   existing LGR selection and report preferences persist before updating production.

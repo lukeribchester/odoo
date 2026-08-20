@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!--
+        Split a standard product-prefixed invoice-line label into independently
+        styleable product and description elements. Caller body content is the
+        trusted fallback whenever the prefix cannot be matched exactly.
+    -->
+    <template id="invoice_line_name_parts" name="LGR Invoice Line Name Parts">
+        <t t-set="lgr_can_split_line_name"
+           t-value="lgr_line_text and lgr_product_name and (lgr_line_text == lgr_product_name or lgr_line_text.startswith(lgr_product_name + '\n'))"/>
+        <t t-if="lgr_can_split_line_name">
+            <span class="o_lgr_invoice_line_product_name"
+                  t-out="lgr_product_name"
+                  dir="auto"/>
+            <span t-if="lgr_line_text != lgr_product_name"
+                  class="o_lgr_invoice_line_description"
+                  t-out="lgr_line_text[len(lgr_product_name) + 1:]"
+                  t-options="{'widget': 'text'}"
+                  dir="auto"/>
+        </t>
+        <t t-else="" t-out="0"/>
+    </template>
+
+    <!--
         A distinct primary template gives LGR a stable invoice-design surface
         while retaining Odoo's resolved default invoice architecture.
     -->
@@ -75,6 +96,41 @@
             <attribute name="t-if">not lgr_hide_quantity and (hide_details or
                 grouped_line['display_type'] not in ('line_section', 'line_subsection'))
             </attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='account_invoice_line_name']/span[@t-field='line.name']"
+               position="replace">
+            <t t-call="lgr.invoice_line_name_parts"
+               lgr_line_text="line.name"
+               lgr_product_name="line.translated_product_name">
+                <span t-if="line.name"
+                      t-field="line.name"
+                      t-options="{'widget': 'text'}"
+                      dir="auto">Bacon Burger
+                </span>
+            </t>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='account_invoice_line_name_grouped_desktop']/span[@t-out=&quot;grouped_line['name']&quot;]"
+               position="replace">
+            <t t-call="lgr.invoice_line_name_parts"
+               lgr_line_text="grouped_line['name']"
+               lgr_product_name="grouped_line.get('product') and grouped_line['product'].with_context(lang=lang).display_name or False">
+                <span t-out="grouped_line['name']"
+                      t-options="{'widget': 'text'}">Group 1
+                </span>
+            </t>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']//td[@name='account_invoice_line_name_grouped']/span[@t-out=&quot;grouped_line['name']&quot;]"
+               position="replace">
+            <t t-call="lgr.invoice_line_name_parts"
+               lgr_line_text="grouped_line['name']"
+               lgr_product_name="grouped_line.get('product') and grouped_line['product'].with_context(lang=lang).display_name or False">
+                <span t-out="grouped_line['name']"
+                      t-options="{'widget': 'text'}">Group 1
+                </span>
+            </t>
         </xpath>
 
         <xpath expr="//div[@id='payment_term']/*[1]"
